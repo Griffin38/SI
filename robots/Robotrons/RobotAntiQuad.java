@@ -37,7 +37,7 @@ public class RobotAntiQuad extends  AdvancedRobot {
 		// iniciar scan /contagem
 
 	}
-
+//vai para o canto
 	public void goCorner() {
 		// We don't want to stop when we're just turning...
 		while (cornerB) {
@@ -56,7 +56,7 @@ public class RobotAntiQuad extends  AdvancedRobot {
 			hitBot = false;
 		}
 	}
-
+//procura inicial
 	public void FindObstacles() {
 		turnRight(360 - getHeading());
 		obs = 0;
@@ -69,7 +69,7 @@ public class RobotAntiQuad extends  AdvancedRobot {
 		Rotunda();
 
 	}
-	
+	//procura os robots
 	public void FindNext() {
 	
 		if(done >0 ) {
@@ -82,15 +82,16 @@ public class RobotAntiQuad extends  AdvancedRobot {
 		Started = false;
 		Rotunda();
 		
-		}
+		}//else volta para o 0 0
 	}
-
+//ver se ateu enquanto ia para o canto
 	public void onHitRobot(HitRobotEvent e) {
 		if (cornerB)
 			hitBot = true;
 
 	}
 
+	//scanned robot se ja estiver a percorrer comportasse diferente
 	public void onScannedRobot(ScannedRobotEvent e) {
 	
 		if(Started == false && obs < 3){
@@ -107,23 +108,30 @@ public class RobotAntiQuad extends  AdvancedRobot {
 		obs++;
 	}
 
+	
+	//vai ate um robot e contorna-o
 	public void vaiAte(ScannedRobotEvent ob) {
 		
-		//setTurnRight(normalRelativeAngleDegrees(ob.getBearing() + 90));
+		//Vai ate ao robot 
 		setTurnRight(ob.getBearing());
 		setAhead(ob.getDistance()- 100);
 		
 		waitFor(new MoveCompleteCondition(this));
+		
+		//dalhe a vlta?
 		setTurnLeft(45);;
 		setAhead(80);
 		waitFor(new MoveCompleteCondition(this));
 		setTurnRight(45);
 		setAhead(50);
 		waitFor(new MoveCompleteCondition(this));
+		
+		//vai para o proximo
 		FindNext();
-//	scan novos robots rotunda
+
 	}
 
+	//Contar a distancia so quando vai andar a volta dos robots
 	public void onCustomEvent(CustomEvent e) {
 		
 		
@@ -136,6 +144,8 @@ public class RobotAntiQuad extends  AdvancedRobot {
 		}
 	}
 	
+	
+	//escolhe o prox robot para onde ir 
 	public void Rotunda() {
 		
 		old_position = new Point2D.Double(getX(), getY());
