@@ -8,10 +8,11 @@ import java.awt.Point;
 import java.awt.geom.Point2D;
 import java.util.HashMap;
 
-public class RobotRotunda extends AdvancedRobot {
+public class RobotAntiQuad extends  AdvancedRobot {
 
 	int obs;
-	boolean cornerB = true, hitBot = false;
+	int done = 0;
+	boolean cornerB = true, hitBot = false,Started = false;
 	static int corner = 270;
 	HashMap<String, ScannedRobotEvent> obstaculos;
 	private Point2D old_position; // Robot's last position
@@ -63,9 +64,25 @@ public class RobotRotunda extends AdvancedRobot {
 		while (obs < 3) {
 			turnRadarRight(360);
 		}
-		
+		addCustomEvent(new MoveCompleteCondition(this));
+		done = obs;
 		Rotunda();
 
+	}
+	
+	public void FindNext() {
+	
+		if(done >0 ) {
+			Started = true;
+		obs = 0;
+		System.out.println("*******************Reprocurar ***************");
+		while (obs < 3) {
+			turnRadarRight(360);
+		}
+		Started = false;
+		Rotunda();
+		
+		}
 	}
 
 	public void onHitRobot(HitRobotEvent e) {
@@ -75,9 +92,19 @@ public class RobotRotunda extends AdvancedRobot {
 	}
 
 	public void onScannedRobot(ScannedRobotEvent e) {
-		obs++;
+	
+		if(Started == false && obs < 3){
+			
 		obstaculos.put(e.getName(), e);
-
+		}
+		else if( obs < 3){
+			if(obstaculos.containsKey(e.getName())){
+				obstaculos.put(e.getName(), e);
+				System.out.println("susbst");
+			}
+			
+		}
+		obs++;
 	}
 
 	public void vaiAte(ScannedRobotEvent ob) {
@@ -91,10 +118,10 @@ public class RobotRotunda extends AdvancedRobot {
 		setAhead(80);
 		waitFor(new MoveCompleteCondition(this));
 		setTurnRight(45);
-		//setAhead(50);
+		setAhead(50);
 		waitFor(new MoveCompleteCondition(this));
-		// calcular nova distancia
-		// adicionar percorrido
+		FindNext();
+//	scan novos robots rotunda
 	}
 
 	public void onCustomEvent(CustomEvent e) {
@@ -105,12 +132,12 @@ public class RobotRotunda extends AdvancedRobot {
 		double euclidian = Math.sqrt(Math.pow((old_position.getX() - new_position.getX()), 2) + Math.pow((old_position.getY() - new_position.getY()), 2));
         distancia += euclidian;
         old_position = new Point2D.Double(new_position.getX(), new_position.getY());
-        System.out.println("Percorrido: "+ distancia);
+       // System.out.println("Percorrido: "+ distancia);
 		}
 	}
 	
 	public void Rotunda() {
-		addCustomEvent(new MoveCompleteCondition(this));
+		
 		old_position = new Point2D.Double(getX(), getY());
 	    distancia = 0.0;
 		String nome = new String();
@@ -118,38 +145,18 @@ public class RobotRotunda extends AdvancedRobot {
 		
 		for (String a : obstaculos.keySet()) {
 			ScannedRobotEvent px = obstaculos.get(a);
-			// Calculate angle
-			double angle = Math.toRadians((getHeading() + px.getBearing()) % 360);
-			// Calculate the coordinates of the robot
-			double scannedX = (getX() + Math.sin(angle) * px.getDistance());
-
-			if (scannedX < aux) {
+			if(px.getDistance() < aux ){
 				nome = a;
-				aux = scannedX;
+				aux = px.getDistance();
 			}
+				System.out.println("E o : " + a);
 		}
 		ScannedRobotEvent ob1 = obstaculos.get(nome);
-		vaiAte(ob1);
 		obstaculos.remove(nome);
+		done--;
+		vaiAte(ob1);
+		
 
-		// Vai para o y maior
-		System.out.println("vou para o : " + nome);
-
-		for (String a : obstaculos.keySet()) {
-			ScannedRobotEvent px = obstaculos.get(a);
-			// Calculate angle
-			double angle = Math.toRadians((getHeading() + px.getBearing()) % 360);
-			// Calculate the coordinates of the robot
-			int scannedY = (int) (getY() + Math.cos(angle) * px.getDistance());
-
-			if (scannedY > aux) {
-				nome = a;
-				aux = scannedY;
-			}
-		}
-		System.out.println("vou para o : " + nome);
-		ScannedRobotEvent ob2 = obstaculos.get(nome);
-		//vaiAte(ob2);
 
 	}
 	
