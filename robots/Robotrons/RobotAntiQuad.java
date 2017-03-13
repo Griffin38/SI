@@ -18,9 +18,11 @@ public class RobotAntiQuad extends  AdvancedRobot {
 	private Point2D old_position; // Robot's last position
 	private Point2D new_position; // New position
 	private double distanciaP = 0.0; // distancia do percurso
-	public double angulo;
+	public double angulo,perimetro = 0.0;
+	private DistanceThread dist;
+	
 	public void run() {
-
+	
 		
 		old_position  = new Point((int) getX(),(int)getY());
     	
@@ -31,24 +33,31 @@ public class RobotAntiQuad extends  AdvancedRobot {
 		setRadarColor(new Color(99, 228, 199));
 		setBulletColor(new Color(255, 238, 0));
 		setScanColor(new Color(255, 241, 46));
-		
+		//canto
 		goCorner();
+		//distancia
 		addCustomEvent(new MoveCompleteCondition(this));
+		dist = new DistanceThread(this);
+        distanciaP = 0.0;
+		//procurar obstaculos
 		Started = false;
-		distanciaP = 0.0;
 		FindObstacles();
-		
+		//add perimetro
+		perimetro += Math.sqrt(Math.pow(getX(),2) + Math.pow(getY(),2)) - 100;
+		//roda
 		setTurnRight(50);
 		ahead(100);
 		execute();
+		//vai para o canto
 		goCorner();
 		done = true;
-		// iniciar scan /contagem
-		System.out.println("Percorrido: "+ distanciaP);
+		// prints
+		System.out.println("DistanceThread: "+ dist.getDistance()+ " Perimetro: "+ perimetro );//+ " Contas:" + distanciaP);
+		
 	}
 //vai para o canto
 	public void goCorner() {
-		// go to 0,0
+		
 		while(getX() != 18 || getY() != 18){
 			turnLeft(getHeading());
 			double alpha = Math.toDegrees(Math.atan(getX()/getY()));
@@ -69,7 +78,7 @@ public class RobotAntiQuad extends  AdvancedRobot {
 		while(!doneS){
 			if(!Started){	
 				while(!Started){
-					turnRight(2);
+					turnRight(1);
 				}
 			} else {
 				Started = false;
@@ -79,6 +88,7 @@ public class RobotAntiQuad extends  AdvancedRobot {
 	}
 //procura 
 	public void FindObstacles() {
+		
 		turnRight(360 - getHeading());
 		obs = 0;
 		System.out.println("*******************ENCONTRAR ***************");
@@ -134,13 +144,13 @@ public class RobotAntiQuad extends  AdvancedRobot {
 	public void onScannedRobot(ScannedRobotEvent e) {
 	
 			
-		
+
 		if(!Started && !(obstaculos.containsKey(e.getName()))){		
 			Started = true;	
-			
+			System.out.println("Ir para: " + e.getName());
 			
 			if(obstaculos.size()>=1){
-				
+				perimetro += e.getDistance();
 				//voltar a posicao
 				double h = getHeading() - angulo;
 				turnLeft(h);
@@ -156,7 +166,7 @@ public class RobotAntiQuad extends  AdvancedRobot {
 			}
 			else {
 				
-				
+				perimetro += e.getDistance();
 				double distancia = Math.sqrt(Math.pow(60,2) + Math.pow(e.getDistance(),2));
 				angulo = Math.toDegrees(Math.atan(60/e.getDistance()));
 				
@@ -165,16 +175,11 @@ public class RobotAntiQuad extends  AdvancedRobot {
 			}
 			
 			obstaculos.put(e.getName(),e);
-			//Guardar o angulo para onde esta virado
+			//Guardar o angulo 
 			angulo = getHeading();
 		}
 		
-		if(done){
-			Started = true;
-			
-			/*******************************************************************/
 	
-	}
 	}
 	
 	
@@ -182,7 +187,7 @@ public class RobotAntiQuad extends  AdvancedRobot {
 	public void onCustomEvent(CustomEvent e) {
 		
 		
-		
+		dist.move();
 		new_position = new Point2D.Double(getX(), getY());
 		double euclidian = Math.sqrt(Math.pow((old_position.getX() - new_position.getX()), 2) + Math.pow((old_position.getY() - new_position.getY()), 2));
         distanciaP += euclidian;
