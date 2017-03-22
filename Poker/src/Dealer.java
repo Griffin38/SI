@@ -1,3 +1,5 @@
+package src;
+
 
 import java.util.*;
 import jade.core.*;
@@ -41,13 +43,13 @@ private class DealJob extends SimpleBehaviour{
 				hand =true;
 			
 			Flop();	
-			//pergunta a todos os da table o que fazem. a comeaçr pelo small blind e acabar no ultimo
+			//pergunta a todos os da table o que fazem. a comeaï¿½r pelo small blind e acabar no ultimo
 			TurnRiver();
 			//pergunta a todos
 			TurnRiver();
 			//pergunta a todos
 			//decide quem ganah pelas cartas--
-			//ve se alguem foi de piça dinheiro == 0
+			//ve se alguem foi de piï¿½a dinheiro == 0
 			hand = false;
 			baralho.Repack();
 			}

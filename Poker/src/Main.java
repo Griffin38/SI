@@ -1,9 +1,14 @@
+package src;
+
 import jade.core.*;
 import jade.core.Runtime;
 import jade.wrapper.*;
 public class Main {
 	Runtime rt;
 	ContainerController container;
+        
+        
+        
 	public void initMainContainer(String host, String port) {
 	this.rt = Runtime.instance();
 	Profile prof = new ProfileImpl();
