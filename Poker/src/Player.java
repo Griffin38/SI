@@ -3,7 +3,6 @@ package src;
 
 import jade.core.*;
 import jade.core.behaviours.CyclicBehaviour;
-import jade.core.behaviours.OneShotBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -52,13 +51,6 @@ public class Player  extends Agent{
 			}
 		}
     
-    
-    
-    
-    
-    
-    
-    
     public double getDinheiro() {
         return dinheiro;
     }
@@ -79,5 +71,11 @@ public class Player  extends Agent{
         this.dinheiro=this.dinheiro+quantidade;
         
     }
+    
+   
+    
+    
+    
+    
 
 }

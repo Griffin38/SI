@@ -118,6 +118,8 @@ class Deck {
             }
         }
     }
+
+
     
     public void Repack(){
     	this.cards = new LinkedList<>();
