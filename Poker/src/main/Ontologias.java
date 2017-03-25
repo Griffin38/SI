@@ -14,7 +14,7 @@ public class Ontologias {
     public static final String DESISTIU = "DESISTIU";
     public static final String JOGADOR = "JOGADOR";
     public static final String LISTAJOGADORES = "LISTAJOGADOREES";
-   
+    public static final String ENTRAR = "ENTRAR";
     
     
     
