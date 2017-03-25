@@ -22,7 +22,13 @@ public class Player implements IPlayer, Serializable {
         this.cards = new Card[2];
     }
 
-        
+    
+ 	public String getNome() {
+ 		return nomeAgente;
+ 	}
+
+ 
+      
         
         
 	public Card getHighCard() {
