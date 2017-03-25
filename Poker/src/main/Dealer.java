@@ -2,7 +2,7 @@ package main;
 
 
 
-import cartas.IPlayer;
+import cartas.*;
 import java.util.*;
 import jade.core.*;
 import jade.core.behaviours.CyclicBehaviour;
@@ -15,182 +15,253 @@ import jade.lang.acl.MessageTemplate;
 
 public class Dealer  extends Agent{
 	public boolean hand = false;
-	private List<String> mesa;
-        private List<IPlayer> jogadoresMesa;
+	//baralho e jogadores 
+	private IDeck baralho;
+	private List<IPlayer> playersTable;
+	private List<IPlayer> playersHand;
+	private List<Card> tableCards;
 	
 	
-//public Deck baralho;
+	
 	
 	
 	protected void setup(){
 		super.setup();
-                this.addBehaviour(new ReceiveBehaviourJogadores());
-		//baralho = new Deck();
-		//add receive entrance
+		this.addBehaviour(new ReceiveBehaviourJogadores());
+		
 		//mao behaviour
 		
 	}
 	
+	/************************************************* ACEITAR JOGADORES *************************************************/
 	
-        
- private class ReceiveBehaviourJogadores  extends  CyclicBehaviour {
-
-        @Override
-        public void action() {
-        
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-			MessageTemplate mtJ = MessageTemplate.MatchOntology(Ontologias.LISTAJOGADORES);
-			MessageTemplate mtRespJogo = MessageTemplate.and(mt, mtJ);
-			ACLMessage msg = receive(mtRespJogo);
+	private class ReceiveBehaviourJogadores  extends  CyclicBehaviour {
+		
+		@Override
+		public void action() {
+			
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.ENTRAR);
+			MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
+			ACLMessage msg = receive(mtEntrada);
 			
 			if(msg != null){
 				
 				try {
-					jogadoresMesa= (List<IPlayer>) msg.getContentObject();
-                                        
-                                      
-
+					//adicionar o jogador a mesa
+					playersTable.add( (IPlayer) msg.getContentObject());
+					
+					
+					
 				} catch (Exception e) {
 					System.out.println(e.getMessage());
 				}
 				
 			}else
 			block();
-				
-			}
-        
-        
-        
- 
-     
-     
- 
- }    
-
-private class DealJob extends SimpleBehaviour{
-	boolean finished = false;
-	String[] table ;
-	int current;
+			
+		}
+		
+	} 
+	
+	
+	/************************************************* DEAL BEHAVIOUR *************************************************/
+	
+	private class DealJob extends SimpleBehaviour{
+		boolean finished = false;
 		@Override
 		public void action(){
-			if(mesa.size()>1){
-				int i =0;
-				for(String a:mesa){
-					table[i]= a; i++;
-				}
-				hand =true;
 			
-			/*Flop();	
+			//ver se tem mais que um?
+			newHand();
+			hand =true;
+			
+			Flop();	
 			//pergunta a todos os da table o que fazem. a comea�r pelo small blind e acabar no ultimo
 			TurnRiver();
-			//pergunta a todos
+			//pergunta a todos 
 			TurnRiver();
 			//pergunta a todos
-			//decide quem ganah pelas cartas--
-			//ve se alguem foi de pi�a dinheiro == 0
+			List<IPlayer> win = getWinner();
+			//ver se alguem sai da mesa
 			hand = false;
-			//baralho.Repack();
-                                */
-			}
-
+			
 			
 		}
-		/*
-		private void novaMao(){
-			//baralho.shuffle();
-			for(int i = 0 ; i < 2 ; i++){
-			for(String s: table){
-				String carta = baralho.drawCard();
-				//avisar player da carta que recebeu
-			}}
+		
+		
+		
+		
+			@Override
+			public boolean done() {
+				if(playersTable.size()==1) finished = true;
+				return finished;
+			}
+			
+			
+			
+		}
+	
+	/************************************************* DEALAR CARTAS *************************************************/
+		public void newHand() {
+			baralho = new Deck();
+			tableCards = new ArrayList<>();
+			playersHand = new ArrayList<>();
+			for(IPlayer p : this.playersTable){
+				playersHand.add(p);
+			}
+		}	
+		
+		
+		private void deal()	{
+			for (IPlayer player : playersHand) {
+				player.getCards()[0] = baralho.pop();
+				player.getCards()[1] = baralho.pop();
+				//mandar mensager ao player.getNome()
+				
+			}
+			checkPlayersRanking();
+		}
+		
+		public void Flop() {
+			baralho.pop();
+			Card card1 = baralho.pop();
+			tableCards.add(card1);
+			Card card2 = baralho.pop();
+			tableCards.add(card2);
+			Card card3 = baralho.pop();
+			tableCards.add(card3);
+			checkPlayersRanking();
+			for (IPlayer player : playersHand) {
+				//mandar as cartas ao player.getNome()
+			}
+		}
+		
+		public void TurnRiver() {
+			baralho.pop();
+			Card c = baralho.pop();
+			tableCards.add(c);
+			checkPlayersRanking();
+			for (IPlayer player : playersHand) {
+				//mandar as cartas ao player.getNome()
+			}
 		}
 		
 		
-		private void Flop(){
-			String[] flop = new String[3];
-			baralho.drawCard();
-			for(int i = 0; i < 3 ; i++){
-				flop[i]= baralho.drawCard();
+		/************************************************* DECIDIR VENCEDOR *************************************************/
+		public List<IPlayer> getWinner() {
+			checkPlayersRanking();
+			List<IPlayer> winnerList = new ArrayList<IPlayer>();
+			IPlayer winner = playersHand.get(0);
+			Integer winnerRank = RankingUtil.getRankingToInt(winner);
+			winnerList.add(winner);
+			for (int i = 1; i < playersHand.size(); i++) {
+				IPlayer player = playersHand.get(i);
+				Integer playerRank = RankingUtil.getRankingToInt(player);
+				//Draw game
+				if (winnerRank == playerRank) {
+					IPlayer highHandPlayer = checkHighSequence(winner, player);
+					//Draw checkHighSequence
+					if (highHandPlayer == null) {
+						highHandPlayer = checkHighCardWinner(winner, player);
+					}
+					//Not draw in checkHighSequence or checkHighCardWinner
+					if (highHandPlayer != null && !winner.equals(highHandPlayer)) {
+						winner = highHandPlayer;
+						winnerList.clear();
+						winnerList.add(winner);
+					} else if (highHandPlayer == null) {
+						//Draw in checkHighSequence and checkHighCardWinner
+						winnerList.add(winner);
+					}
+				} else if (winnerRank < playerRank) {
+					winner = player;
+					winnerList.clear();
+					winnerList.add(winner);
+				}
+				winnerRank = RankingUtil.getRankingToInt(winner);
 			}
-			for(String s: table){
-				//avisar os players das cartas que sairam
+			
+			return winnerList;
+		}
+		
+		private IPlayer checkHighSequence(IPlayer player1, IPlayer player2) {
+			Integer player1Rank = sumRankingList(player1);
+			Integer player2Rank = sumRankingList(player2);
+			if (player1Rank > player2Rank) {
+				return player1;
+			} else if (player1Rank < player2Rank) {
+				return player2;
 			}
+			return null;
 		}
-		private void TurnRiver(){
-			baralho.drawCard();
-			String carta = baralho.drawCard();
-			for(String s: table){
-				//avisar os players das cartas que sairam
+		
+		@SuppressWarnings("unchecked")
+		private IPlayer checkHighCardWinner(IPlayer player1, IPlayer player2) {
+			IPlayer winner = compareHighCard(player1, player1.getHighCard(),
+			player2, player2.getHighCard());
+			if (winner == null) {
+				Card player1Card = RankingUtil.getHighCard(player1,
+				Collections.EMPTY_LIST);
+				Card player2Card = RankingUtil.getHighCard(player2,
+				Collections.EMPTY_LIST);
+				winner = compareHighCard(player1, player1Card, player2, player2Card);
+				if (winner != null) {
+					player1.setHighCard(player1Card);
+					player2.setHighCard(player2Card);
+				} else if (winner == null) {
+					player1Card = getSecondHighCard(player1, player1Card);
+					player2Card = getSecondHighCard(player2, player2Card);
+					winner = compareHighCard(player1, player1Card, player2,
+					player2Card);
+					if (winner != null) {
+						player1.setHighCard(player1Card);
+						player2.setHighCard(player2Card);
+					}
+				}
 			}
+			return winner;
 		}
-                 */
-		@Override
-		public boolean done() {
-		if(mesa.size()==1) finished = true;
-		return finished;
+		
+		private IPlayer compareHighCard(IPlayer player1, Card player1HighCard,
+		IPlayer player2, Card player2HighCard) {
+			if (player1HighCard.getRankToInt() > player2HighCard.getRankToInt()) {
+				return player1;
+			} else if (player1HighCard.getRankToInt() < player2HighCard
+			.getRankToInt()) {
+				return player2;
+			}
+			return null;
 		}
-               
-
-       
-    }
-
+		
+		
+		private Card getSecondHighCard(IPlayer player, Card card) {
+			if (player.getCards()[0].equals(card)) {
+				return player.getCards()[1];
+			}
+			return player.getCards()[0];
+		}
+		
 	
-
+		private Integer sumRankingList(IPlayer player) {
+			Integer sum = 0;
+			for (Card card : player.getRankingList()) {
+				sum += card.getRankToInt();
+			}
+			return sum;
+		}
+		
+		private void checkPlayersRanking() {
+			for (IPlayer player : playersHand) {
+				RankingUtil.checkRanking(player, tableCards);
+			}
+		}	
+		/***************************************************************************************************/	
+		public void removePlayer(IPlayer player) {
+			//remover o player da mesa
+			playersTable.remove(player);
+		}
+	}
 	
-
-}
-
-
-/*
-class Deck {
-   
-    private static final String[] SUITS = {
-        "H", "D", "C", "S"
-    };
-    private static final String[] RANKS = {
-        "A", "K", "Q", "J", "10", "9", "8", "7", "6", "5", "4", "3", "2"
-    };
-
-    private List<String> cards;
-
-    public Deck() {
-        this.cards = new LinkedList<>();
-        for (int i = 0; i < SUITS.length; i++) {
-            for (int j = 0; j < RANKS.length; j++) {
-                this.cards.add(RANKS[j] + SUITS[i]);
-            }
-        }
-    }
-
-
-    
-    public void Repack(){
-    	this.cards = new LinkedList<>();
-        for (int i = 0; i < SUITS.length; i++) {
-            for (int j = 0; j < RANKS.length; j++) {
-                this.cards.add(RANKS[j] + SUITS[i]);
-            }
-        }
-    }
-    
-    public void shuffle() {
-        Collections.shuffle(this.cards);
-    }
-
-    public String drawCard() throws NoSuchElementException {
-        if (this.cards.isEmpty()) {
-            throw new NoSuchElementException();
-        }
-        return this.cards.remove(0);
-    }
-
-    public void returnCard(String card) {
-        this.cards.add(card);
-    }
-
-
-
-}
-*********/
-
-
+	
+	
