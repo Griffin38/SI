@@ -1,6 +1,7 @@
 package src;
 
 
+import cartas.IPlayer;
 import java.util.*;
 import jade.core.*;
 import jade.core.behaviours.CyclicBehaviour;
@@ -14,20 +15,56 @@ import jade.lang.acl.MessageTemplate;
 public class Dealer  extends Agent{
 	public boolean hand = false;
 	private List<String> mesa;
+        private List<IPlayer> jogadoresMesa;
 	
 	
-public Deck baralho;
+//public Deck baralho;
 	
 	
 	protected void setup(){
 		super.setup();
-		baralho = new Deck();
+                this.addBehaviour(new ReceiveBehaviourJogadores());
+		//baralho = new Deck();
 		//add receive entrance
 		//mao behaviour
 		
 	}
 	
 	
+        
+ private class ReceiveBehaviourJogadores  extends  CyclicBehaviour {
+
+        @Override
+        public void action() {
+        
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			MessageTemplate mtJ = MessageTemplate.MatchOntology(Ontologias.LISTAJOGADORES);
+			MessageTemplate mtRespJogo = MessageTemplate.and(mt, mtJ);
+			ACLMessage msg = receive(mtRespJogo);
+			
+			if(msg != null){
+				
+				try {
+					jogadoresMesa= (List<IPlayer>) msg.getContentObject();
+                                        
+                                      
+
+				} catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+				
+			}else
+			block();
+				
+			}
+        
+        
+        
+ 
+     
+     
+ 
+ }    
 
 private class DealJob extends SimpleBehaviour{
 	boolean finished = false;
@@ -42,7 +79,7 @@ private class DealJob extends SimpleBehaviour{
 				}
 				hand =true;
 			
-			Flop();	
+			/*Flop();	
 			//pergunta a todos os da table o que fazem. a comea�r pelo small blind e acabar no ultimo
 			TurnRiver();
 			//pergunta a todos
@@ -51,14 +88,15 @@ private class DealJob extends SimpleBehaviour{
 			//decide quem ganah pelas cartas--
 			//ve se alguem foi de pi�a dinheiro == 0
 			hand = false;
-			baralho.Repack();
+			//baralho.Repack();
+                                */
 			}
-			
+
 			
 		}
-		
+		/*
 		private void novaMao(){
-			baralho.shuffle();
+			//baralho.shuffle();
 			for(int i = 0 ; i < 2 ; i++){
 			for(String s: table){
 				String carta = baralho.drawCard();
@@ -84,21 +122,25 @@ private class DealJob extends SimpleBehaviour{
 				//avisar os players das cartas que sairam
 			}
 		}
+                 */
 		@Override
 		public boolean done() {
 		if(mesa.size()==1) finished = true;
 		return finished;
 		}
+               
+
+       
+    }
+
+	
+
+	
+
 }
 
-	
-	
-	
 
-}
-
-
-
+/*
 class Deck {
    
     private static final String[] SUITS = {
@@ -145,5 +187,9 @@ class Deck {
         this.cards.add(card);
     }
 
-   
+
+
 }
+*********/
+
+

@@ -166,7 +166,7 @@ public class Inicio extends javax.swing.JDialog {
             
      
                 AgentController ag = container.createNewAgent(NOMEAGENTE+this.nrJogadores, 
-                                              "src.Player", 
+                                              "src.AgentPlayer", 
                                               new Object[] {});
                 ag.start();
     

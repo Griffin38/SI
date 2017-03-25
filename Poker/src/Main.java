@@ -35,12 +35,8 @@ public class Main {
 			mc.startAgentInPlatform("Jogador "+ i, "Player");
 		}
          *******/
-                GameTexasHoldem game = new GameTexasHoldem();
-                IPlayer p = (IPlayer) new Player();
-                IPlayer p1 = (IPlayer) new Player();
-                IDeck d = (IDeck) new Deck();
                 
-                game.newGame(d,p,p1);
+            
               
                 
 

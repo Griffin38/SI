@@ -16,14 +16,15 @@ public class GameTexasHoldem implements Serializable {
 
 	private List<Card> tableCards;
 
-	public void newGame(IDeck deck, IPlayer player1, IPlayer... _players) {
+	public void newGame(IDeck deck, List<IPlayer> player1) {
 		this.deck = deck;
 		tableCards = new ArrayList<>();
 		players = new ArrayList<>();
-		//the game needs at least one player
-		players.add(player1);
-		players.addAll(Arrays.asList(_players));
-	}
+            //the game needs at least one player
+            player1.forEach((i) -> {
+                players.add(i);
+            });
+		}
 
 	//To abandon the game
 	public void removePlayer(IPlayer player) {

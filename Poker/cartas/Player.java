@@ -7,6 +7,7 @@ import java.util.List;
 public class Player implements IPlayer, Serializable {
 
 	private static final long serialVersionUID = 4664480702994610549L;
+        private String nomeAgente;
 
 	private Card[] cards = new Card[2];
 
@@ -16,6 +17,14 @@ public class Player implements IPlayer, Serializable {
 
 	private Card highCard = null;
 
+    public Player(String nomeAgente) {
+        this.nomeAgente = nomeAgente;
+        this.cards = new Card[2];
+    }
+
+        
+        
+        
 	public Card getHighCard() {
 		return highCard;
 	}
