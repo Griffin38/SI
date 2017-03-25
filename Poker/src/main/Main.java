@@ -1,4 +1,5 @@
-package src;
+package main;
+
 
 import cartas.GameTexasHoldem;
 import cartas.*;
@@ -9,9 +10,9 @@ import jade.wrapper.*;
 
 
 public class Main {
-	Runtime rt;
-	ContainerController container;
-        
+	private Runtime rt;
+	public ContainerController container;
+	protected Inicio myGui;    
         
         
 	public void initMainContainer(String host, String port) {
@@ -21,14 +22,18 @@ public class Main {
 	prof.setParameter(Profile.MAIN_PORT, port);
 	prof.setParameter(Profile.MAIN, "true");
 	prof.setParameter(Profile.GUI, "true");
+    prof.setParameter(Profile.CONTAINER_NAME, "Tester");
 	this.container = rt.createMainContainer(prof);
 	rt.setCloseVM(true);
 	}
 	public static void main(String[] args) {
-		/*
+		
 		Main mc = new Main();
-		mc.initMainContainer("127.0.0.1", "1099");
+		mc.initMainContainer("127.0.0.1", "1080");
 		mc.startAgentInPlatform("Dealer", "Dealer");
+		mc.myGui = new Inicio(mc.container);
+	    mc.myGui.setVisible(true);
+		/*
 		//input quantos jogadores
 		int x = 3;
 		for(int i= 0;i<x; i++){

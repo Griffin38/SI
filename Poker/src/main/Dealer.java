@@ -1,4 +1,5 @@
-package src;
+package main;
+
 
 
 import cartas.IPlayer;

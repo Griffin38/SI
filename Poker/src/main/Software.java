@@ -1,9 +1,10 @@
+package main;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package src;
+
 
 import cartas.IPlayer;
 import cartas.Player;
@@ -31,7 +32,7 @@ public class Software extends GuiAgent{
     protected void setup () {
         super.setup();
         this.jogadoresCriados=new ArrayList<>();
-        this.myGui = new Inicio(this);
+       // this.myGui = new Inicio(this);
         myGui.setVisible(true);
         
     }

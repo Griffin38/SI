@@ -1,9 +1,10 @@
+package main;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package src;
+
 
 import jade.*;
 import jade.core.Profile;
@@ -21,33 +22,28 @@ import javax.swing.JOptionPane;
  * @author gil
  */
 public class Inicio extends javax.swing.JDialog {
-
-    private Software sof;
+    
     private List<Double> jogadores;
-    private jade.core.Runtime rt;
     private int nrJogadores;
     private ContainerController container;
-    private Profile profile;
-    public final static String NOMEAGENTE ="agentnick";
+    public final static String NOMEAGENTE ="agentNick ";
     /**
      * Creates new form Inicio
      */
    
-    
-    public Inicio() {
+ public Inicio() {
         
         initComponents();
          this.jogadores = new ArrayList<>();
-         this.nrJogadores=0;
-         crearCenas();
+        
     }
 
-    public Inicio(Software sofs) {
+    public Inicio(ContainerController c) {
     initComponents();
-    this.sof=sofs;
+    this.container=c;
     this.jogadores = new ArrayList<>();
     this.nrJogadores=0;
-    crearCenas();
+    
     
     
     
@@ -56,18 +52,7 @@ public class Inicio extends javax.swing.JDialog {
         
     }
     
-    private void crearCenas() {
-    
-        this.rt = jade.core.Runtime.instance();
-            
-            this.profile = new ProfileImpl();
-            profile.setParameter(Profile.CONTAINER_NAME, "TestContainer");
-            profile.setParameter(Profile.MAIN_HOST, "localhost");
-
-        this.container = this.rt.createAgentContainer(profile);
-        
-        
-    }
+ 
     
     /**
      * This method is called from within the constructor to initialize the form.
@@ -166,7 +151,7 @@ public class Inicio extends javax.swing.JDialog {
             
      
                 AgentController ag = container.createNewAgent(NOMEAGENTE+this.nrJogadores, 
-                                              "src.AgentPlayer", 
+                                              "main.AgentPlayer", 
                                               new Object[] {});
                 ag.start();
     
@@ -197,10 +182,10 @@ public class Inicio extends javax.swing.JDialog {
         
         if(this.jogadores.size()>1) {
         
-        GuiEvent ge = new GuiEvent(this.jogadores,1);
+     //   GuiEvent ge = new GuiEvent(this.jogadores,1);
             
        
-        sof.postGuiEvent(ge);
+      //  sof.postGuiEvent(ge);
         
         }
         
