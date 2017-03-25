@@ -72,7 +72,8 @@ public class Dealer  extends Agent{
 		@Override
 		public void action(){
 			
-			//ver se tem mais que um?
+			
+			if(playersTable.size() > 1 ){
 			newHand();
 			hand =true;
 			
@@ -86,7 +87,7 @@ public class Dealer  extends Agent{
 			//ver se alguem sai da mesa
 			hand = false;
 			
-			
+		}	
 		}
 		
 		
@@ -101,7 +102,14 @@ public class Dealer  extends Agent{
 			
 			
 		}
-	
+	/************************************************* ASK BEHAVIOUR *************************************************/
+public class AskTable extends OneShotBehaviour{
+public void action(){
+for(IPlayer p : playersHand){
+//mandar mensagem
+}
+}
+}
 	/************************************************* DEALAR CARTAS *************************************************/
 		public void newHand() {
 			baralho = new Deck();
@@ -256,10 +264,15 @@ public class Dealer  extends Agent{
 				RankingUtil.checkRanking(player, tableCards);
 			}
 		}	
-		/***************************************************************************************************/	
-		public void removePlayer(IPlayer player) {
+/************************************************* Remover Jogadores *************************************************/
+		public void removePlayerTable(IPlayer player) {
 			//remover o player da mesa
 			playersTable.remove(player);
+		}
+
+			public void removePlayerHand(IPlayer player) {
+			//remover o player da mesa
+			playersHand.remove(player);
 		}
 	}
 	
