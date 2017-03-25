@@ -69,6 +69,7 @@ public class Dealer  extends Agent{
 	
 	private class DealJob extends SimpleBehaviour{
 		boolean finished = false;
+		int pot = 0;
 		@Override
 		public void action(){
 			
@@ -84,6 +85,7 @@ public class Dealer  extends Agent{
 			TurnRiver();
 			//pergunta a todos
 			List<IPlayer> win = getWinner();
+			//dar o pot ao vencedor 
 			//ver se alguem sai da mesa
 			hand = false;
 			
