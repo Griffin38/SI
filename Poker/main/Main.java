@@ -1,7 +1,5 @@
 package main;
 
-
-import cartas.GameTexasHoldem;
 import cartas.*;
 import cartas.IPlayer;
 import jade.core.*;
@@ -29,8 +27,8 @@ public class Main {
 	public static void main(String[] args) {
 		
 		Main mc = new Main();
-		mc.initMainContainer("127.0.0.1", "1080");
-		mc.startAgentInPlatform("Dealer", "Dealer");
+		mc.initMainContainer("127.0.0.1", "1090");
+		mc.startAgentInPlatform("Dealer", "main.Dealer");
 		mc.myGui = new Inicio(mc.container);
 	    mc.myGui.setVisible(true);
 		/*
