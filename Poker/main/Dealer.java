@@ -20,13 +20,15 @@ public class Dealer  extends Agent{
 	private List<IPlayer> playersTable;
 	private List<IPlayer> playersHand;
 	private List<Card> tableCards;
-	
+	private double valorApostar;
+        private Map<String,Double> dinheiroApostado;
 	
 	
 	
 	
 	protected void setup(){
 		super.setup();
+                this.dinheiroApostado=new HashMap<>();
 		this.addBehaviour(new ReceiveBehaviourJogadores());
 		
 		//mao behaviour
@@ -109,9 +111,112 @@ public class AskTable extends OneShotBehaviour{
 public void action(){
 for(IPlayer p : playersHand){
 //mandar mensagem
+
+
+
+
 }
 }
 }
+
+public class PerguntaAgenteJoga extends OneShotBehaviour {
+       String nomeA;
+       double dinheiroApostar;
+    
+      
+        public PerguntaAgenteJoga(String nomeAgente,double dinheiroA) {
+        
+            super();
+            this.nomeA=nomeAgente;
+            this.dinheiroApostar=dinheiroA;
+        }    
+    
+    
+        @Override
+        public void action() {
+        
+            
+            AID receiver = new AID();
+            receiver.setLocalName(this.nomeA);
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            msg.setOntology(Ontologias.ENTRARJOGAR);
+            msg.setContent(dinheiroApostar+"");
+            msg.addReceiver(receiver);
+            myAgent.send(msg);
+         
+        }
+
+}
+
+
+public class RecebeAgenteDesistiu extends SimpleBehaviour {
+
+        private boolean finished = false;
+        @Override
+        
+        public void action() {
+        
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+            MessageTemplate mtC = MessageTemplate.MatchOntology(Ontologias.DESISTIU);
+            MessageTemplate mtRespClass= MessageTemplate.and(mt, mtC);
+            ACLMessage msg = receive(mtRespClass);
+           
+            if(msg != null){    
+                String g = msg.getSender().getName();
+                removerAgenteHand(g);
+                 dinheiroApostado.remove(g);
+             finished = true;
+			
+		}else {
+		      block();
+	    }
+		
+	}
+
+  public boolean done() {
+    return finished;
+  }   
+}
+
+
+public class RecebeAgenteRaise extends SimpleBehaviour {
+
+        private boolean finished = false;
+        @Override
+        
+        public void action() {
+        
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+            MessageTemplate mtC = MessageTemplate.MatchOntology(Ontologias.RAISE);
+            MessageTemplate mtRespClass= MessageTemplate.and(mt, mtC);
+            ACLMessage msg = receive(mtRespClass);
+           
+            if(msg != null){    
+ 
+               valorApostar=Double.valueOf(msg.getContent());
+               dinheiroApostado.put(msg.getSender().getName(),valorApostar);
+            
+
+             finished = true;
+			
+		}else {
+		      block();
+	    }
+		
+	}
+
+  public boolean done() {
+    return finished;
+  }   
+
+    
+    
+
+}
+
+
+
+
 	/************************************************* DEALAR CARTAS *************************************************/
 		public void newHand() {
 			baralho = new Deck();
@@ -276,6 +381,20 @@ for(IPlayer p : playersHand){
 			//remover o player da mesa
 			playersHand.remove(player);
 		}
+                      
+                public void removerAgenteHand(String nomeAgente) {
+                
+                    for(IPlayer a :this.playersHand) {
+                    
+                        if(a.getNome().equalsIgnoreCase(nomeAgente)) { 
+                            this.playersHand.remove(a);
+                            return;
+                        }
+                    }
+                    
+                
+                }        
+                        
 	}
 	
 	

@@ -17,4 +17,5 @@ public interface IPlayer {
 	public Card getHighCard();
 
 	public void setHighCard(Card highCard);
+        public String getNome();
 }
