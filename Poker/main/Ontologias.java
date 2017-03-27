@@ -26,6 +26,8 @@ public class Ontologias {
     public static final String DADINHEIRO="DaDinheiro";
     public static final String PERDEU="Perdeu";
     public static final String RAISE="Raise";
+    public static final String JOGA="Joga";
+    
     
     
     

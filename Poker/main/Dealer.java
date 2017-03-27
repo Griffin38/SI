@@ -149,7 +149,7 @@ public class PerguntaAgenteJoga extends OneShotBehaviour {
 }
 
 
-public class RecebeAgenteDesistiu extends SimpleBehaviour {
+public class RecebeAgenteAposta extends SimpleBehaviour {
 
         private boolean finished = false;
         @Override
@@ -157,14 +157,30 @@ public class RecebeAgenteDesistiu extends SimpleBehaviour {
         public void action() {
         
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-            MessageTemplate mtC = MessageTemplate.MatchOntology(Ontologias.DESISTIU);
+            MessageTemplate mtC = MessageTemplate.MatchOntology(Ontologias.JOGA);
             MessageTemplate mtRespClass= MessageTemplate.and(mt, mtC);
             ACLMessage msg = receive(mtRespClass);
            
             if(msg != null){    
                 String g = msg.getSender().getName();
-                removerAgenteHand(g);
-                 dinheiroApostado.remove(g);
+                double d = Double.valueOf(msg.getContent());
+                
+                if(dinheiroApostado.containsKey(g) && d==-1) { 
+                    dinheiroApostado.remove(g);
+                }
+                
+                if(d==valorApostar) {
+                    dinheiroApostado.put(g, d);
+                }
+                
+                if(d>valorApostar) {
+                
+                    dinheiroApostado.put(g, d);
+                    valorApostar=d;
+                    
+                }
+                
+                
              finished = true;
 			
 		}else {
@@ -179,40 +195,7 @@ public class RecebeAgenteDesistiu extends SimpleBehaviour {
 }
 
 
-public class RecebeAgenteRaise extends SimpleBehaviour {
 
-        private boolean finished = false;
-        @Override
-        
-        public void action() {
-        
-            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-            MessageTemplate mtC = MessageTemplate.MatchOntology(Ontologias.RAISE);
-            MessageTemplate mtRespClass= MessageTemplate.and(mt, mtC);
-            ACLMessage msg = receive(mtRespClass);
-           
-            if(msg != null){    
- 
-               valorApostar=Double.valueOf(msg.getContent());
-               dinheiroApostado.put(msg.getSender().getName(),valorApostar);
-            
-
-             finished = true;
-			
-		}else {
-		      block();
-	    }
-		
-	}
-
-  public boolean done() {
-    return finished;
-  }   
-
-    
-    
-
-}
 
 
 
