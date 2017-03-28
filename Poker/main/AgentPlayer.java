@@ -25,7 +25,7 @@ public class AgentPlayer  extends Agent{
         super.setup();
         this.nrAgentesFold=0;
         this.dinheiro=0;
-        this.addBehaviour(new ReceiveBehaviourJogador() );
+        this.addBehaviour(new SendMessageEntrance() );
        
         
         }
@@ -33,14 +33,12 @@ public class AgentPlayer  extends Agent{
 
         
    
-    /*
-    Recebe mensagens dos agentes que vão desistindo da partida
-    */
+   
     
-private class sendMessageEntrance extends OneShotBehaviour{
-		IPlayer player;
+private class SendMessageEntrance extends OneShotBehaviour{
+		
 		public sendMessageEntrance(){
-		player = new Player(this.getName());
+		jogador = new Player(this.getName());
 		}
 		@Override 
 		public void action(){
@@ -49,11 +47,12 @@ private class sendMessageEntrance extends OneShotBehaviour{
 			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 			msg.setOntology(Ontologias.ENTRAR);
 			try {
-				msg.setContentObject(this.player);
+				msg.setContentObject(this.jogador);
 				msg.addReceiver(receiver);
 				myAgent.send(msg);
+				this.addBehaviour(new ReceiveBehaviourJogador());
 			} catch (Exception e) {
-				// Nao deu
+				
 			System.out.println(e.getMessage());
 			}
 			
@@ -62,7 +61,7 @@ private class sendMessageEntrance extends OneShotBehaviour{
 		
 	}
     
-  
+ 	/************************************************* INICIO DE UMA MAO *************************************************/ 
     private class ReceiveBehaviourJogador extends  CyclicBehaviour {
                 
 		
@@ -77,8 +76,11 @@ private class sendMessageEntrance extends OneShotBehaviour{
 			if(msg != null){
 				
 				try {
-					//reset table e cards
-					//add NewCards getFlop
+					table = new List<Card>();
+					SequentialBehaviour seq = new SequentialBehaviour();
+					 seq.addSubBehaviour(new NewCards());
+					 seq.addSubBehaviour(new GetFlop());
+					
                                        
                                         
                                       
@@ -107,8 +109,10 @@ private class NewCards extends OneShotBehaviour{
 			if(msg != null){
 				
 				try {
-					
-                       //add Cards                
+					Card[] cards = new Card[2];
+					//tira as cards do content
+					jogador.setCards(cards);
+                                      
                                         
                                       
 
@@ -122,7 +126,7 @@ private class NewCards extends OneShotBehaviour{
 
 }
     
- private class getFlop extends OneShotBehaviour{
+ private class GetFlop extends OneShotBehaviour{
 	@Override
 		public void action(){
 				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
@@ -134,9 +138,9 @@ private class NewCards extends OneShotBehaviour{
 				
 				try {
 					
-                          //add table   
-						  //add Answer          
-                                        
+                          table =msg.getContentObject(); 
+						           
+                           this.addBehaviour(new PlayGame());             
                                       
 
 				} catch (Exception e) {
@@ -148,12 +152,31 @@ private class NewCards extends OneShotBehaviour{
 	}
 
 }   
+/************************************************* DECISAO *************************************************/
+	private class PlayGame extends SimpleBehaviour{
+		private boolean finished = false;
+		int rank ,round,bet,pot;
+		public PlayGame(){
+			rank=0;
+			round = 0;
+			bet = 0;
+			pot= 0;
+
+		}
+			public voi action(){
+				//se o dealer falar decidir
+			}
+
+			@Override
+			public boolean done() {
+				
+				return finished;
+			}
+	}    
     
     
     
-    
-    
-    
+	/************************************************* Metodos *************************************************/    
     public double getDinheiro() {
         return dinheiro;
     }
