@@ -139,9 +139,9 @@
 					try {
 						
 								table =msg.getContentObject(); 
-								checkRanking(jogador,table);
+							
 								       
-								this.addBehaviour(new PlayGame(RankingUtil.getRankingToInt(jogador)));             
+								this.addBehaviour(new PlayGame());             
 																				
 
 					} catch (Exception e) {
@@ -156,26 +156,51 @@
 	/************************************************* DECISAO *************************************************/
 		private class PlayGame extends SimpleBehaviour{
 			private boolean finished = false;
-			int rank ,round,bet,pot;
-			public PlayGame(int rankflop){
-				rank=rankflop;
+			int rank ,round,bet,pot,toRaise;
+			public PlayGame(){
+				rank=0;
 				round = 0;
 				bet = 0;
 				pot= 0;
-
+				toRaise = 0;
 			}	
 				public voi action(){
 					ACLMessage msg = receive();
 					if(msg != null){
 						if(msg.getOntology().equals(Ontologias.PERGUNTAR)){
-							//check rank && round preço para entrar 
+	RankingUtil.checkRanking(jogador,table);
+/*
+* check rank && round preço para entrar 
+*  round 0
+* 0-1(cartas fracas) FOLD
+* 1(boas cartas)-3 JOGAR 
+* 3(bom)-5 JOGAR SUBIR PROX RONDA
+*6-9 JOGAR SUBIR SEMPRE 
+* round 1 
+* 1 - se for JACK > jogar 
+*2-3 jogar 
+*4 raise 
+* 5-9 SUBIR 
+* round 2 
+* 1 - se for JACK > jogar  
+* 2-3 - call se n for mutio alto
+* 4-5 apostar 
+* 6-9 subir e dar call a todos os raises   
+*/
 							round++;
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
 
 						}else if (msg.getOntology().equals(Ontologias.RIVER)){
 
 						}else if (msg.getOntology().equals(Ontologias.RAISE)){
-
+/*
+*round 0 
+*
+*round 1
+* 
+*
+*round 2 
+*/
 						}else if(msg.getOntology().equals(Ontologias.PERDEU)){
 							if(dinheiro == 0){ 
 								//add pedir para sair 
