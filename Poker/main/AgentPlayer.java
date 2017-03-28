@@ -3,12 +3,16 @@
 
 	import cartas.Card;
 	import cartas.IPlayer;
+import cartas.Player;
+import cartas.RankingUtil;
 	import jade.core.*;
 	import jade.core.behaviours.CyclicBehaviour;
 	import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.SequentialBehaviour;
 	import jade.core.behaviours.SimpleBehaviour;
 	import jade.lang.acl.ACLMessage;
 	import jade.lang.acl.MessageTemplate;
+import java.io.Serializable;
 	import java.util.ArrayList;
 	import java.util.List;
 
@@ -37,8 +41,8 @@
 			
 	private class SendMessageEntrance extends OneShotBehaviour{
 			
-			public sendMessageEntrance(){
-			jogador = new Player(this.getName());
+			public SendMessageEntrance (){
+			jogador = new Player(this.getAgent().getName());
 			}
 			@Override 
 			public void action(){
@@ -47,10 +51,10 @@
 				ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 				msg.setOntology(Ontologias.ENTRAR);
 				try {
-					msg.setContentObject(this.jogador);
+					msg.setContentObject((Serializable) jogador);
 					msg.addReceiver(receiver);
 					myAgent.send(msg);
-					this.addBehaviour(new ReceiveBehaviourJogador());
+					addBehaviour(new ReceiveBehaviourJogador());
 				} catch (Exception e) {
 					
 				System.out.println(e.getMessage());
@@ -76,7 +80,7 @@
 				if(msg != null){
 					
 					try {
-						table = new List<Card>();
+						table = new ArrayList<Card>();
 						SequentialBehaviour seq = new SequentialBehaviour();
 						seq.addSubBehaviour(new NewCards());
 						seq.addSubBehaviour(new GetFlop());
@@ -137,12 +141,12 @@
 				if(msg != null){
 					
 					try {
-						
-								table =msg.getContentObject(); 
+
+								table =(List<Card>) msg.getContentObject(); 
 							
 								       
-								this.addBehaviour(new PlayGame());             
-																				
+								addBehaviour(new PlayGame());             
+								
 
 					} catch (Exception e) {
 						System.out.println(e.getMessage());
@@ -164,7 +168,7 @@
 				pot= 0;
 				toRaise = 0;
 			}	
-				public voi action(){
+				public void action(){
 					ACLMessage msg = receive();
 					if(msg != null){
 						if(msg.getOntology().equals(Ontologias.PERGUNTAR)){

@@ -22,6 +22,16 @@ public class Player implements IPlayer, Serializable {
         this.cards = new Card[2];
     }
 
+    public Player (IPlayer a) {
+      this.nomeAgente=a.getNome();
+      this.cards= a.getCards();
+      this.rankingEnum=a.getRankingEnum();
+      this.rankingList=a.getRankingList();
+      this.highCard=a.getHighCard();
+      
+        
+        
+    }
     
  	public String getNome() {
  		return nomeAgente;
