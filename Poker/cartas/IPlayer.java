@@ -18,4 +18,6 @@ public interface IPlayer {
 
 	public void setHighCard(Card highCard);
         public String getNome();
+        public void setCards(Card[] cards);
+        
 }
