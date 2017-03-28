@@ -7,10 +7,10 @@ import java.util.*;
 import jade.core.*;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
-import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import java.util.Map.Entry;
 
 
 public class Dealer  extends Agent{
@@ -29,6 +29,7 @@ public class Dealer  extends Agent{
 	protected void setup(){
 		super.setup();
                 this.dinheiroApostado=new HashMap<>();
+                this.valorApostar= Ontologias.VALORAPOSTAR;
 		this.addBehaviour(new ReceiveBehaviourJogadores());
 		
 		//mao behaviour
@@ -165,6 +166,8 @@ public class RecebeAgenteAposta extends SimpleBehaviour {
                 String g = msg.getSender().getName();
                 double d = Double.valueOf(msg.getContent());
                 
+                if(d==-1) removerAgenteHand(g);
+                
                 if(dinheiroApostado.containsKey(g) && d==-1) { 
                     dinheiroApostado.remove(g);
                 }
@@ -196,6 +199,66 @@ public class RecebeAgenteAposta extends SimpleBehaviour {
 
 
 
+public class EnviaRaise extends OneShotBehaviour { 
+     
+      private Map<String,Double> nomesUser;
+     
+      public EnviaRaise(Map<String,Double> nomes) {
+       this.nomesUser=nomes;
+           
+      }    
+    
+        @Override
+        public void action() {
+           
+           for(Entry<String,Double> entry : nomesUser.entrySet()) {
+            
+            AID receiver = new AID();
+            receiver.setLocalName(entry.getKey());
+            ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+            msg.setOntology(Ontologias.RAISE);
+            double enviar = valorApostar-entry.getValue();
+            msg.setContent(enviar+"");
+            msg.addReceiver(receiver);
+            myAgent.send(msg);
+           
+           
+           }
+
+        }
+}
+
+public class RecebeRaise extends OneShotBehaviour { 
+     
+    
+        @Override
+        public void action() {
+           
+           MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+            MessageTemplate mtC = MessageTemplate.MatchOntology(Ontologias.CALLRAISE);
+            MessageTemplate mtRespClass= MessageTemplate.and(mt, mtC);
+            ACLMessage msg = receive(mtRespClass);
+            
+            if(msg!=null) {
+                double dinheiro =Double.valueOf(msg.getContent());
+                String nome = msg.getSender().getName();
+                if(dinheiro==-1) {
+                    removerAgenteHand(nome);
+                    if(dinheiroApostado.containsKey(nome))
+                        dinheiroApostado.remove(nome);
+                    
+                }
+                else {
+                         double dinheiroA = dinheiroApostado.get(nome);
+                         dinheiroA=dinheiroA + dinheiro;
+                         dinheiroApostado.put(nome, dinheiroA);
+                }
+               
+            }
+           
+           }
+
+        }
 
 
 
@@ -359,6 +422,19 @@ public class RecebeAgenteAposta extends SimpleBehaviour {
 			//remover o player da mesa
 			playersTable.remove(player);
 		}
+                
+                public void removeAgenteTable(String player) {
+			//remover o player da mesa
+                         for(IPlayer a :this.playersTable) {
+                    
+                        if(a.getNome().equalsIgnoreCase(player)) { 
+                            this.playersHand.remove(a);
+                            return;
+                        }
+                    }
+                        
+			
+		}
 
 			public void removePlayerHand(IPlayer player) {
 			//remover o player da mesa
@@ -376,7 +452,20 @@ public class RecebeAgenteAposta extends SimpleBehaviour {
                     }
                     
                 
-                }        
+                }
+                //calcula as apostas que nao sejam normais
+                // se retornar vazio significa que todos apostaram o mesmo
+        public Map<String,Double> getApostasNormais() {
+           Map<String,Double> lista = new HashMap<>();
+              
+           this.dinheiroApostado.entrySet().stream().filter((entry) -> (Objects.equals(this.valorApostar, entry.getValue()) ==false)).forEachOrdered((entry) -> {
+               lista.put(entry.getKey(),entry.getValue());
+            }); 
+        
+            return lista;
+            
+        }        
+                
                         
 	}
 	

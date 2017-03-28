@@ -3,12 +3,14 @@ package main;
 
 import cartas.Card;
 import cartas.IPlayer;
+import cartas.Player;
 import jade.core.*;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,7 +42,7 @@ public class AgentPlayer  extends Agent{
 private class sendMessageEntrance extends OneShotBehaviour{
 		IPlayer player;
 		public sendMessageEntrance(){
-		player = new Player(this.getName());
+		player = new Player(this.getAgent().getName());
 		}
 		@Override 
 		public void action(){
@@ -49,7 +51,7 @@ private class sendMessageEntrance extends OneShotBehaviour{
 			ACLMessage msg = new ACLMessage(ACLMessage.REQUEST);
 			msg.setOntology(Ontologias.ENTRAR);
 			try {
-				msg.setContentObject(this.player);
+				msg.setContentObject((Serializable) this.player);
 				msg.addReceiver(receiver);
 				myAgent.send(msg);
 			} catch (Exception e) {

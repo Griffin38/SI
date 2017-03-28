@@ -5,7 +5,7 @@ import java.util.List;
 
 public interface IPlayer {
 	public Card[] getCards();
-
+       
 	public List<Card> getRankingList();
 
 	public void setRankingList(List<Card> rankingList);
