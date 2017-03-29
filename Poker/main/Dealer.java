@@ -258,7 +258,7 @@ public class RecebeRaise extends OneShotBehaviour {
 
         }
 
-/************************************************* Mensagens *************************************************/
+/************************************************* Mensagens de Ronda *************************************************/
 	private class sendMessageNewHand extends OneShotBehaviour{
 String receiver;
 	 public sendMessageNewHand(String playername)  {
@@ -376,6 +376,52 @@ private class sendMessageCartas extends OneShotBehaviour{
 		}
 			
 		}
+		
+/************************************************* Mensagens de Fim de Ronda *************************************************/
+	private class sendMessageVitoria extends OneShotBehaviour{
+	int premio;
+	String receiver;
+	 public sendMessageVitoria(int premio,String playername)  {
+	premio = premio;
+	receiver = playername;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName(receiver);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.DINHEIRO);
+			
+			msg.setContentObject(premio);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+			
+		}
+
+private class sendMessageDerrota extends OneShotBehaviour{
+String receiver;
+	 public sendMessageDerrota(String playername)  {
+
+	receiver = playername;
+	}
+	
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName(receiver);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.PERDEU);
+			
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+	
+		}		
 /************************************************* DEALAR CARTAS *************************************************/
 		public void newHand() {
 			baralho = new Deck();
