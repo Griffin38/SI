@@ -21,8 +21,9 @@ public class Dealer  extends Agent{
 	private List<IPlayer> playersHand;
 	private List<Card> tableCards;
 	private double valorApostar;
-        private Map<String,Double> dinheiroApostado;
-	
+    private Map<String,Double> dinheiroApostado;
+	private int pot ,lastRaiseID;
+	private boolean raised;
 	
 	
 	
@@ -72,7 +73,7 @@ public class Dealer  extends Agent{
 	
 	private class DealJob extends SimpleBehaviour{
 		boolean finished = false;
-		int pot = 0;
+		pot = 0;
 		@Override
 		public void action(){
 			
@@ -110,28 +111,41 @@ public class Dealer  extends Agent{
 	/************************************************* ASK BEHAVIOUR *************************************************/
 public class AskTable extends SimpleBehaviour{
 	private boolean finished = false;
-	public AskTable(){
-		for(IPlayer p : playersHand){
-//mandar mensagem
-
-}
+	
+	private int indexActual,currentbet;
+	
+	public AskTable(int bet){
+	raised = false;
+	indexActual = 0;
+	currentbet = bet;
+	lastRaiseID = playersTable.size();
 	}
-public void action(){
-	ACLMessage msg = receive();
-					if(msg != null){
+	public void action(){
+	int last = playersTable.size();
+	if(indexActual <= last  && indexActual != lastRaiseID){
+	
+	Player p = (Player)playersTable.get(indexActual);
+	SequentialBehaviour seq = new SequentialBehaviour();
+	seq.addSubBehaviour(new PerguntaAgenteJoga(p.getNome(),currentbet));
+	//add processaresposta 	//mandar mensagem ao actual e receber resposta
+	this.addBehaviour(seq);
 
-						try{
+	//se deu raise -> raised == true ; update lastRaiseID
+	if(indexActual < last){
+	indexActual++;
+	}else if(indexActual == last ){
+		if(raised){
+			indexActual =0;
+		}else{
+			finished == true;
+		}
 
-						if(msg.getOntology().equals(Ontologias.RAISE)){
-					 	
-						}
-					
-					} catch (Exception e) {
-						System.out.println(e.getMessage());
-					}
-					
-					
-					}else block();
+	}
+   }
+   else  if(indexActual == lastRaiseID && raised ){
+	finished = true;
+   }
+	
 				}
 				@Override
 				public boolean done() {
@@ -139,6 +153,14 @@ public void action(){
 					return finished;
 				}
 	
+
+
+
+
+
+
+
+
 }
 
 public class PerguntaAgenteJoga extends OneShotBehaviour {
