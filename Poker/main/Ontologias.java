@@ -29,7 +29,7 @@ public class Ontologias {
     public static final String RAISE="Raise";
     public static final String JOGA="Joga";
     public static final String CALLRAISE="CallRaise";
-    public static final double VALORAPOSTAR= 10;
+    public static final int VALORAPOSTAR= 10;
     
     
     

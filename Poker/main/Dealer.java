@@ -20,7 +20,7 @@ public class Dealer  extends Agent{
 	private List<IPlayer> playersTable;
 	private List<IPlayer> playersHand;
 	private List<Card> tableCards;
-	private double valorApostar;
+	private int valorApostar;
     private Map<String,Double> dinheiroApostado;
 	private int pot ,lastRaiseID;
 	private boolean raised;
@@ -112,12 +112,12 @@ public class Dealer  extends Agent{
 public class AskTable extends SimpleBehaviour{
 	private boolean finished = false;
 	
-	private int indexActual,currentbet;
+	private int indexActual;
 	
-	public AskTable(int bet){
+	public AskTable( ){
 	raised = false;
 	indexActual = 0;
-	currentbet = bet;
+	
 	lastRaiseID = playersTable.size();
 	}
 	public void action(){
@@ -126,7 +126,7 @@ public class AskTable extends SimpleBehaviour{
 	
 	Player p = (Player)playersTable.get(indexActual);
 	SequentialBehaviour seq = new SequentialBehaviour();
-	seq.addSubBehaviour(new PerguntaAgenteJoga(p.getNome(),currentbet));
+	seq.addSubBehaviour(new PerguntaAgenteJoga(p.getNome(),valorApostar));
 	//add processaresposta 	//mandar mensagem ao actual e receber resposta
 	this.addBehaviour(seq);
 
