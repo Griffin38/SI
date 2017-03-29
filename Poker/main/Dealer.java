@@ -108,7 +108,7 @@ public class Dealer  extends Agent{
 			
 			
 		}
-	/************************************************* ASK BEHAVIOUR *************************************************/
+	/************************************************* Perguntar *************************************************/
 public class AskTable extends SimpleBehaviour{
 	private boolean finished = false;
 	
@@ -127,7 +127,7 @@ public class AskTable extends SimpleBehaviour{
 	Player p = (Player)playersTable.get(indexActual);
 	SequentialBehaviour seq = new SequentialBehaviour();
 	seq.addSubBehaviour(new PerguntaAgenteJoga(p.getNome(),valorApostar));
-	//add processaresposta 	//mandar mensagem ao actual e receber resposta
+	sed.addSubBehaviour(new RespostasPlayer());
 	this.addBehaviour(seq);
 
 	//se deu raise -> raised == true ; update lastRaiseID
@@ -191,6 +191,38 @@ public class PerguntaAgenteJoga extends OneShotBehaviour {
         }
 
 }
+/************************************************* Resolver Respostas *************************************************/
+
+private class RespostasPlayer extends OneShotBehaviour{
+
+
+				public void action(){
+				ACLMessage msg = receive();
+					if(msg != null){
+
+						try{
+								
+						if(msg.getOntology().equals(Ontologias.RAISE)){
+					 		
+						}else if(msg.getOntology().equals(Ontologias.JOGA)){
+						
+						}else if(msg.getOntology().equals(Ontologias.FOLD)){
+						
+						}else if(msg.getOntology().equals(Ontologias.RERAISE)){
+						
+						}
+
+							} catch (Exception e) {
+							System.out.println(e.getMessage());
+									}
+					
+					
+					}else block();
+
+									}
+
+}
+
 
 /*
 public class RecebeAgenteAposta extends SimpleBehaviour {
