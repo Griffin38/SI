@@ -108,16 +108,37 @@ public class Dealer  extends Agent{
 			
 		}
 	/************************************************* ASK BEHAVIOUR *************************************************/
-public class AskTable extends OneShotBehaviour{
-public void action(){
-for(IPlayer p : playersHand){
+public class AskTable extends SimpleBehaviour{
+	private boolean finished = false;
+	public AskTable(){
+		for(IPlayer p : playersHand){
 //mandar mensagem
 
-
-
-
 }
-}
+	}
+public void action(){
+	ACLMessage msg = receive();
+					if(msg != null){
+
+						try{
+
+						if(msg.getOntology().equals(Ontologias.RAISE)){
+					 	
+						}
+					
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+					
+					
+					}else block();
+				}
+				@Override
+				public boolean done() {
+					
+					return finished;
+				}
+	
 }
 
 public class PerguntaAgenteJoga extends OneShotBehaviour {
@@ -147,7 +168,7 @@ public class PerguntaAgenteJoga extends OneShotBehaviour {
 
 }
 
-
+/*
 public class RecebeAgenteAposta extends SimpleBehaviour {
 
         private boolean finished = false;
@@ -257,7 +278,7 @@ public class RecebeRaise extends OneShotBehaviour {
            }
 
         }
-
+*/
 /************************************************* Mensagens de Ronda *************************************************/
 	private class sendMessageNewHand extends OneShotBehaviour{
 	String receiver;
