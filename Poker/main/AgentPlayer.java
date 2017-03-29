@@ -172,17 +172,22 @@ import java.io.Serializable;
 							responder(quantia);
 							round++;
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
-
+							Card cturn = (Card)msg.getContentObject();
+							table.add(cturn);
 						}else if (msg.getOntology().equals(Ontologias.RIVER)){
-
+							Card criver = (Card)msg.getContentObject();
+							table.add(criver);
 						}else if (msg.getOntology().equals(Ontologias.RAISE)){
-					}else if(msg.getOntology().equals(Ontologias.PERDEU)){
+							//
+							//Raise
+						}else if(msg.getOntology().equals(Ontologias.PERDEU)){
 							if(dinheiro == 0){ 
 								//add pedir para sair 
 							}
 							finished = true;
 						}else if(msg.getOntology().equals(Ontologias.DINHEIRO)){
-							//add dinheiro ao total 
+							int quantia = (int)msg.getContentObject();
+							dinheiro += quantia;
 							finished = true;
 						}
 					}else block();
@@ -193,20 +198,20 @@ import java.io.Serializable;
 					
 					return finished;
 				}
-		}    
-			
+	
+	
+	
 	private void responder(int quantia){
-RankingUtil.checkRanking(jogador,table);
-myRank = RankingUtil.getRankingToInt(jogador);
-switch (round) {
+	RankingUtil.checkRanking(jogador,table);
+	myRank = RankingUtil.getRankingToInt(jogador);
+	switch (round) {
             case 0:  responderFlop(quantia);
                      break;
 			case 1:  responderTurn(quantia);
                      break;
 			case 2:  responderRiver(quantia);
                      break;
-}
-
+				}	
 	}
 /*	
 * check rank && round preço para entrar 
@@ -321,6 +326,9 @@ switch(myRank){
 *
 *round 2 
 */
+		}    
+			
+
 	
 		/************************************************* Metodos *************************************************/    
 			public double getDinheiro() {
