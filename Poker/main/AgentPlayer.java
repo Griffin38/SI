@@ -3,26 +3,29 @@
 
 	import cartas.Card;
 	import cartas.IPlayer;
-import cartas.Player;
-import cartas.RankingUtil;
+	import cartas.Player;
+	import cartas.RankingUtil;
 	import jade.core.*;
 	import jade.core.behaviours.CyclicBehaviour;
 	import jade.core.behaviours.OneShotBehaviour;
-import jade.core.behaviours.SequentialBehaviour;
+	import jade.core.behaviours.SequentialBehaviour;
 	import jade.core.behaviours.SimpleBehaviour;
 	import jade.lang.acl.ACLMessage;
 	import jade.lang.acl.MessageTemplate;
-import java.io.Serializable;
+	import java.io.Serializable;
 	import java.util.ArrayList;
 	import java.util.List;
 
 
-	public class AgentPlayer  extends Agent{
+public class AgentPlayer  extends Agent {
+
+
 					private double dinheiro;
 					private int nrAgentesFold;
 					private IPlayer jogador;
-				private List<Card> table;
-			private int myRank;
+					private List<Card> table;
+					private int myRank,round,bet,pot,toRaise;
+		
 					
 					@Override
 			protected void setup() {
@@ -30,7 +33,6 @@ import java.io.Serializable;
 					this.nrAgentesFold=0;
 					this.dinheiro=0;
 					this.addBehaviour(new SendMessageEntrance() );
-				
 					
 					}
 			
@@ -80,6 +82,7 @@ import java.io.Serializable;
 				if(msg != null){
 					
 					try {
+						round = bet= pot = toRaise = 0;
 						table = new ArrayList<Card>();
 						SequentialBehaviour seq = new SequentialBehaviour();
 						seq.addSubBehaviour(new NewCards());
@@ -114,6 +117,12 @@ import java.io.Serializable;
 					
 					try {
 						Card[] cards = new Card[2];
+						List<Card> mao =(List<Card>) msg.getContentObject();
+						int i = 0;
+						for(Card a : mao){
+							cards[i] = a ;
+							i++;
+						}
 						//tira as cards do content
 						jogador.setCards(cards);
 																				
@@ -160,20 +169,67 @@ import java.io.Serializable;
 	/************************************************* DECISAO *************************************************/
 		private class PlayGame extends SimpleBehaviour{
 			private boolean finished = false;
-			int rank ,round,bet,pot,toRaise;
-			public PlayGame(){
-				rank=0;
-				round = 0;
-				bet = 0;
-				pot= 0;
-				toRaise = 0;
-			}	
+			
+			
 				public void action(){
 					ACLMessage msg = receive();
 					if(msg != null){
+
+						try{
+
 						if(msg.getOntology().equals(Ontologias.PERGUNTAR)){
+					 		int quantia = (int)msg.getContentObject();
+							responder(quantia);
+							round++;
+						}else if(msg.getOntology().equals(Ontologias.TURN)){
+							Card cturn = (Card)msg.getContentObject();
+							table.add(cturn);
+						}else if (msg.getOntology().equals(Ontologias.RIVER)){
+							Card criver = (Card)msg.getContentObject();
+							table.add(criver);
+						}else if (msg.getOntology().equals(Ontologias.RAISE)){
+							//
+							//Raise
+						}else if(msg.getOntology().equals(Ontologias.PERDEU)){
+							if(dinheiro == 0){ 
+								//add pedir para sair 
+							}
+							finished = true;
+						}else if(msg.getOntology().equals(Ontologias.DINHEIRO)){
+							int quantia = (int)msg.getContentObject();
+							dinheiro += quantia;
+							finished = true;
+						}
+					
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+					
+					
+					}else block();
+				}
+
+				@Override
+				public boolean done() {
+					
+					return finished;
+				}
+	
+	
+	
+	private void responder(int quantia){
 	RankingUtil.checkRanking(jogador,table);
-/*
+	myRank = RankingUtil.getRankingToInt(jogador);
+	switch (round) {
+            case 0:  responderFlop(quantia);
+                     break;
+			case 1:  responderTurn(quantia);
+                     break;
+			case 2:  responderRiver(quantia);
+                     break;
+				}	
+	}
+/*	
 * check rank && round preço para entrar 
 *  round 0
 * 0-1(cartas fracas) FOLD
@@ -191,12 +247,93 @@ import java.io.Serializable;
 * 4-5 apostar 
 * 6-9 subir e dar call a todos os raises   
 */
-							round++;
-						}else if(msg.getOntology().equals(Ontologias.TURN)){
 
-						}else if (msg.getOntology().equals(Ontologias.RIVER)){
+private void responderFlop(int quantia ){
 
-						}else if (msg.getOntology().equals(Ontologias.RAISE)){
+switch(myRank){
+	case 0: //fold 
+			break;
+	case 1:
+			break;			
+	case 2: //JOGAR
+			break;
+	case 3://JOGAR / se bom subir prox ronda
+			break;
+	case 4: // JOGAR subir prox ronda
+			break;
+	case 5: // JOGAR subir prox ronda
+			break;
+	case 6: // JOGAR SUBIR SEMPRE 
+			break;
+	case 7: // JOGAR SUBIR SEMPRE 
+			break;
+	case 8:// JOGAR SUBIR SEMPRE 
+			break;
+	case 9:// JOGAR SUBIR SEMPRE 
+			break;
+
+			}
+}	
+
+
+private void responderTurn(int quantia ){
+	
+	
+switch(myRank){
+	case 0: //FOLD
+			break;
+	case 1:
+			break;			
+	case 2:
+			break;
+	case 3:
+			break;
+	case 4:
+			break;
+	case 5:
+			break;
+	case 6:// JOGAR SUBIR SEMPRE 
+			break;
+	case 7:// JOGAR SUBIR SEMPRE 
+			break;
+	case 8:// JOGAR SUBIR SEMPRE 
+			break;
+	case 9:// JOGAR SUBIR SEMPRE 
+			break;
+
+			}
+}
+
+
+private void responderRiver(int quantia ){
+	
+	
+switch(myRank){
+	case 0: //FOLD
+			break;
+	case 1:
+			break;			
+	case 2:
+			break;
+	case 3:
+			break;
+	case 4:
+			break;
+	case 5:
+			break;
+	case 6: // JOGAR SUBIR SEMPRE 
+			break;
+	case 7: // JOGAR SUBIR SEMPRE 
+			break;
+	case 8: // JOGAR SUBIR SEMPRE 
+			break;
+	case 9: // JOGAR SUBIR SEMPRE 
+			break;
+
+			}
+}		
+
+//raise
 /*
 *round 0 
 *
@@ -205,28 +342,73 @@ import java.io.Serializable;
 *
 *round 2 
 */
-						}else if(msg.getOntology().equals(Ontologias.PERDEU)){
-							if(dinheiro == 0){ 
-								//add pedir para sair 
-							}
-							finished = true;
-						}else if(msg.getOntology().equals(Ontologias.DINHEIRO)){
-							//add dinheiro ao total 
-							finished = true;
-						}
-					}else block();
-				}
-
-				@Override
-				public boolean done() {
-					
-					return finished;
-				}
 		}    
+
+	/************************************************* Respostas *************************************************/			
+
+private class sendMessageCall extends OneShotBehaviour{
+	int quantia;
+	 public sendMessageCall(int q) {
+	quantia = q;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName("Dealer");
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.JOGA);
+			
+			msg.setContentObject(quantia);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
 			
 			
+		}
 			
-		/************************************************* Metodos *************************************************/    
+		}
+
+
+private class sendMessageRaise extends OneShotBehaviour{
+	int quantia;
+	 public sendMessageRaise(int q) {
+	quantia = q;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName("Dealer");
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.RAISE);
+			
+			msg.setContentObject(quantia);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+			
+		}
+
+
+	private class sendMessageFold extends OneShotBehaviour{
+	
+	
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName("Dealer");
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.FOLD);
+			
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+	
+		}
+	/************************************************* Metodos *************************************************/    
+			
 			public double getDinheiro() {
 					return dinheiro;
 			}
@@ -248,13 +430,7 @@ import java.io.Serializable;
 					
 			}
 			
-			
-			
-			
-		
-			
-			
-			
+				
 			
 
 	}

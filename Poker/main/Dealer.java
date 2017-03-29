@@ -122,14 +122,12 @@ for(IPlayer p : playersHand){
 
 public class PerguntaAgenteJoga extends OneShotBehaviour {
        String nomeA;
-       double dinheiroApostar;
+       int dinheiroApostar;
     
       
-        public PerguntaAgenteJoga(String nomeAgente,double dinheiroA) {
-        
-            super();
-            this.nomeA=nomeAgente;
-            this.dinheiroApostar=dinheiroA;
+        public PerguntaAgenteJoga(String nomeAgente,int dinheiroA) {
+            nomeA=nomeAgente;
+            dinheiroApostar=dinheiroA;
         }    
     
     
@@ -138,10 +136,10 @@ public class PerguntaAgenteJoga extends OneShotBehaviour {
         
             
             AID receiver = new AID();
-            receiver.setLocalName(this.nomeA);
+            receiver.setLocalName(nomeA);
             ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-            msg.setOntology(Ontologias.ENTRARJOGAR);
-            msg.setContent(dinheiroApostar+"");
+            msg.setOntology(Ontologias.PERGUNTAR);
+            msg.setContentObject(dinheiroApostar);
             msg.addReceiver(receiver);
             myAgent.send(msg);
          
@@ -260,10 +258,171 @@ public class RecebeRaise extends OneShotBehaviour {
 
         }
 
+/************************************************* Mensagens de Ronda *************************************************/
+	private class sendMessageNewHand extends OneShotBehaviour{
+	String receiver;
+	 public sendMessageNewHand(String playername)  {
+
+	receiver = playername;
+	}
+	
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName(receiver);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.NOVAMAO);
+			
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+	
+		}
 
 
+	private class sendMessageCartas extends OneShotBehaviour{
+	List<Card> mao;
+	String receiver;
+	 public sendMessageCartas(List<Cards> car,String playername)  {
+	mao = car;
+	receiver = playername;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName(receiver);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.CARTAS);
+			
+			msg.setContentObject(mao);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+			
+		}
 
-	/************************************************* DEALAR CARTAS *************************************************/
+
+	private class sendMessageFlop extends OneShotBehaviour{
+	List<Card> mesa;
+	String receiver;
+	 public sendMessageFlop(List<Cards> car,String playername)  {
+	mesa = car;
+	receiver = playername;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName(receiver);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.FLOP);
+			
+			msg.setContentObject(mesa);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+			
+		}
+
+
+	private class sendMessageTurn extends OneShotBehaviour{
+	List<Card> mesa;
+	String receiver;
+	 public sendMessageTurn(List<Cards> car,String playername)  {
+	mesa = car;
+	receiver = playername;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName(receiver);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.TURN);
+			
+			msg.setContentObject(mesa);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+			
+		}
+
+
+	private class sendMessageRiver extends OneShotBehaviour{
+	List<Card> mesa;
+	String receiver;
+	 public sendMessageRiver(List<Cards> car,String playername)  {
+	mesa = car;
+	receiver = playername;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName(receiver);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.RIVER);
+			
+			msg.setContentObject(mesa);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+			
+		}
+		
+/************************************************* Mensagens de Fim de Ronda *************************************************/
+	private class sendMessageVitoria extends OneShotBehaviour{
+	int premio;
+	String receiver;
+	 public sendMessageVitoria(int premio,String playername)  {
+	premio = premio;
+	receiver = playername;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName(receiver);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.DINHEIRO);
+			
+			msg.setContentObject(premio);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+			
+		}
+
+private class sendMessageDerrota extends OneShotBehaviour{
+String receiver;
+	 public sendMessageDerrota(String playername)  {
+
+	receiver = playername;
+	}
+	
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName(receiver);
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.PERDEU);
+			
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+	
+		}		
+/************************************************* DEALAR CARTAS *************************************************/
 		public void newHand() {
 			baralho = new Deck();
 			tableCards = new ArrayList<>();
@@ -271,6 +430,7 @@ public class RecebeRaise extends OneShotBehaviour {
 			for(IPlayer p : this.playersTable){
 				playersHand.add(p);
 			}
+			deal();
 		}	
 		
 		
