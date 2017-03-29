@@ -117,6 +117,12 @@ public class AgentPlayer  extends Agent {
 					
 					try {
 						Card[] cards = new Card[2];
+						List<Card> mao =(List<Card>) msg.getContentObject();
+						int i = 0;
+						for(Card a : mao){
+							cards[i] = a ;
+							i++;
+						}
 						//tira as cards do content
 						jogador.setCards(cards);
 																				
