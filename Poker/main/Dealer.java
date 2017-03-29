@@ -83,9 +83,9 @@ public class Dealer  extends Agent{
 			
 			Flop();	
 			//pergunta a todos os da table o que fazem. a comea�r pelo small blind e acabar no ultimo
-			TurnRiver();
+			TurnRiver(true);
 			//pergunta a todos 
-			TurnRiver();
+			TurnRiver(false);
 			//pergunta a todos
 			List<IPlayer> win = getWinner();
 			//dar o pot ao vencedor 
@@ -285,7 +285,7 @@ public class RecebeRaise extends OneShotBehaviour {
 	private class sendMessageCartas extends OneShotBehaviour{
 	List<Card> mao;
 	String receiver;
-	 public sendMessageCartas(List<Cards> car,String playername)  {
+	 public sendMessageCartas(List<Card> car,String playername)  {
 	mao = car;
 	receiver = playername;
 	}
@@ -309,7 +309,7 @@ public class RecebeRaise extends OneShotBehaviour {
 	private class sendMessageFlop extends OneShotBehaviour{
 	List<Card> mesa;
 	String receiver;
-	 public sendMessageFlop(List<Cards> car,String playername)  {
+	 public sendMessageFlop(List<Card> car,String playername)  {
 	mesa = car;
 	receiver = playername;
 	}
@@ -331,9 +331,9 @@ public class RecebeRaise extends OneShotBehaviour {
 
 
 	private class sendMessageTurn extends OneShotBehaviour{
-	List<Card> mesa;
+	Card mesa;
 	String receiver;
-	 public sendMessageTurn(List<Cards> car,String playername)  {
+	 public sendMessageTurn(Card car,String playername)  {
 	mesa = car;
 	receiver = playername;
 	}
@@ -355,9 +355,9 @@ public class RecebeRaise extends OneShotBehaviour {
 
 
 	private class sendMessageRiver extends OneShotBehaviour{
-	List<Card> mesa;
+	Card mesa;
 	String receiver;
-	 public sendMessageRiver(List<Cards> car,String playername)  {
+	 public sendMessageRiver(Card car,String playername)  {
 	mesa = car;
 	receiver = playername;
 	}
@@ -429,6 +429,7 @@ String receiver;
 			playersHand = new ArrayList<>();
 			for(IPlayer p : this.playersTable){
 				playersHand.add(p);
+				this.addBehaviour(new sendMessageNewHand(p.getNome()));
 			}
 			deal();
 		}	
@@ -436,15 +437,20 @@ String receiver;
 		
 		private void deal()	{
 			for (IPlayer player : playersHand) {
-				player.getCards()[0] = baralho.pop();
-				player.getCards()[1] = baralho.pop();
-				//mandar mensager ao player.getNome()
+				List<Card> mao = new List<Card>();
+				Card  c1 = baralho.pop();
+				Card c2 =  baralho.pop();
+				mao.add(c1); mao.add(c2);
+				player.getCards()[0] = c1;
+				player.getCards()[1] =c2;
 				
+				this.addBehaviour(new sendMessageCartas(mao,player.getNome()));
 			}
 			checkPlayersRanking();
 		}
 		
 		public void Flop() {
+			
 			baralho.pop();
 			Card card1 = baralho.pop();
 			tableCards.add(card1);
@@ -454,17 +460,22 @@ String receiver;
 			tableCards.add(card3);
 			checkPlayersRanking();
 			for (IPlayer player : playersHand) {
-				//mandar as cartas ao player.getNome()
+				this.addBehaviour(new sendMessageFlop(tableCards,player.getNome()));
 			}
 		}
 		
-		public void TurnRiver() {
+		public void TurnRiver(boolean c) {
 			baralho.pop();
 			Card c = baralho.pop();
 			tableCards.add(c);
 			checkPlayersRanking();
 			for (IPlayer player : playersHand) {
-				//mandar as cartas ao player.getNome()
+				if(c){
+					this.addBehaviour(new sendMessageTurn(c,player.getNome()));
+				}else{
+						this.addBehaviour(new sendMessageRiver(c,player.getNome()));
+				}
+				
 			}
 		}
 		
