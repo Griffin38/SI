@@ -22,7 +22,8 @@ import java.io.Serializable;
 					private int nrAgentesFold;
 					private IPlayer jogador;
 				private List<Card> table;
-			private int myRank;
+			private int myRank,round,bet,pot,toRaise;
+		
 					
 					@Override
 			protected void setup() {
@@ -80,6 +81,7 @@ import java.io.Serializable;
 				if(msg != null){
 					
 					try {
+						round = bet= pot = toRaise = 0;
 						table = new ArrayList<Card>();
 						SequentialBehaviour seq = new SequentialBehaviour();
 						seq.addSubBehaviour(new NewCards());
@@ -160,52 +162,21 @@ import java.io.Serializable;
 	/************************************************* DECISAO *************************************************/
 		private class PlayGame extends SimpleBehaviour{
 			private boolean finished = false;
-			int rank ,round,bet,pot,toRaise;
-			public PlayGame(){
-				rank=0;
-				round = 0;
-				bet = 0;
-				pot= 0;
-				toRaise = 0;
-			}	
+			
+			
 				public void action(){
 					ACLMessage msg = receive();
 					if(msg != null){
 						if(msg.getOntology().equals(Ontologias.PERGUNTAR)){
-	RankingUtil.checkRanking(jogador,table);
-/*
-* check rank && round preço para entrar 
-*  round 0
-* 0-1(cartas fracas) FOLD
-* 1(boas cartas)-3 JOGAR 
-* 3(bom)-5 JOGAR SUBIR PROX RONDA
-*6-9 JOGAR SUBIR SEMPRE 
-* round 1 
-* 1 - se for JACK > jogar 
-*2-3 jogar 
-*4 raise 
-* 5-9 SUBIR 
-* round 2 
-* 1 - se for JACK > jogar  
-* 2-3 - call se n for mutio alto
-* 4-5 apostar 
-* 6-9 subir e dar call a todos os raises   
-*/
+					 		int quantia = (int)msg.getContentObject();
+							responder(quantia);
 							round++;
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
 
 						}else if (msg.getOntology().equals(Ontologias.RIVER)){
 
 						}else if (msg.getOntology().equals(Ontologias.RAISE)){
-/*
-*round 0 
-*
-*round 1
-* 
-*
-*round 2 
-*/
-						}else if(msg.getOntology().equals(Ontologias.PERDEU)){
+					}else if(msg.getOntology().equals(Ontologias.PERDEU)){
 							if(dinheiro == 0){ 
 								//add pedir para sair 
 							}
@@ -224,8 +195,133 @@ import java.io.Serializable;
 				}
 		}    
 			
-			
-			
+	private void responder(int quantia){
+RankingUtil.checkRanking(jogador,table);
+myRank = RankingUtil.getRankingToInt(jogador);
+switch (round) {
+            case 0:  responderFlop(quantia);
+                     break;
+			case 1:  responderTurn(quantia);
+                     break;
+			case 2:  responderRiver(quantia);
+                     break;
+}
+
+	}
+/*	
+* check rank && round preço para entrar 
+*  round 0
+* 0-1(cartas fracas) FOLD
+* 1(boas cartas)-3 JOGAR 
+* 3(bom)-5 JOGAR SUBIR PROX RONDA
+*6-9 JOGAR SUBIR SEMPRE 
+* round 1 
+* 1 - se for JACK > jogar 
+*2-3 jogar 
+*4 raise 
+* 5-9 SUBIR 
+* round 2 
+* 1 - se for JACK > jogar  
+* 2-3 - call se n for mutio alto
+* 4-5 apostar 
+* 6-9 subir e dar call a todos os raises   
+*/
+
+private void responderFlop(int quantia ){
+
+switch(myRank){
+	case 0: //fold 
+			break;
+	case 1:
+			break;			
+	case 2: //JOGAR
+			break;
+	case 3://JOGAR / se bom subir prox ronda
+			break;
+	case 4: // JOGAR subir prox ronda
+			break;
+	case 5: // JOGAR subir prox ronda
+			break;
+	case 6: // JOGAR SUBIR SEMPRE 
+			break;
+	case 7: // JOGAR SUBIR SEMPRE 
+			break;
+	case 8:// JOGAR SUBIR SEMPRE 
+			break;
+	case 9:// JOGAR SUBIR SEMPRE 
+			break;
+
+			}
+}	
+
+
+private void responderTurn(int quantia ){
+	
+	
+switch(myRank){
+	case 0: //FOLD
+			break;
+	case 1:
+			break;			
+	case 2:
+			break;
+	case 3:
+			break;
+	case 4:
+			break;
+	case 5:
+			break;
+	case 6:// JOGAR SUBIR SEMPRE 
+			break;
+	case 7:// JOGAR SUBIR SEMPRE 
+			break;
+	case 8:// JOGAR SUBIR SEMPRE 
+			break;
+	case 9:// JOGAR SUBIR SEMPRE 
+			break;
+
+			}
+}
+
+
+private void responderRiver(int quantia ){
+	
+	
+switch(myRank){
+	case 0: //FOLD
+			break;
+	case 1:
+			break;			
+	case 2:
+			break;
+	case 3:
+			break;
+	case 4:
+			break;
+	case 5:
+			break;
+	case 6: // JOGAR SUBIR SEMPRE 
+			break;
+	case 7: // JOGAR SUBIR SEMPRE 
+			break;
+	case 8: // JOGAR SUBIR SEMPRE 
+			break;
+	case 9: // JOGAR SUBIR SEMPRE 
+			break;
+
+			}
+}		
+
+//raise
+/*
+*round 0 
+*
+*round 1
+* 
+*
+*round 2 
+*/
+	
 		/************************************************* Metodos *************************************************/    
 			public double getDinheiro() {
 					return dinheiro;
