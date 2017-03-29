@@ -260,7 +260,7 @@ public class RecebeRaise extends OneShotBehaviour {
 
 /************************************************* Mensagens de Ronda *************************************************/
 	private class sendMessageNewHand extends OneShotBehaviour{
-String receiver;
+	String receiver;
 	 public sendMessageNewHand(String playername)  {
 
 	receiver = playername;
@@ -282,7 +282,7 @@ String receiver;
 		}
 
 
-private class sendMessageCartas extends OneShotBehaviour{
+	private class sendMessageCartas extends OneShotBehaviour{
 	List<Card> mao;
 	String receiver;
 	 public sendMessageCartas(List<Cards> car,String playername)  {
@@ -354,7 +354,7 @@ private class sendMessageCartas extends OneShotBehaviour{
 		}
 
 
-			private class sendMessageRiver extends OneShotBehaviour{
+	private class sendMessageRiver extends OneShotBehaviour{
 	List<Card> mesa;
 	String receiver;
 	 public sendMessageRiver(List<Cards> car,String playername)  {
