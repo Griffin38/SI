@@ -3,26 +3,28 @@
 
 	import cartas.Card;
 	import cartas.IPlayer;
-import cartas.Player;
-import cartas.RankingUtil;
+	import cartas.Player;
+	import cartas.RankingUtil;
 	import jade.core.*;
 	import jade.core.behaviours.CyclicBehaviour;
 	import jade.core.behaviours.OneShotBehaviour;
-import jade.core.behaviours.SequentialBehaviour;
+	import jade.core.behaviours.SequentialBehaviour;
 	import jade.core.behaviours.SimpleBehaviour;
 	import jade.lang.acl.ACLMessage;
 	import jade.lang.acl.MessageTemplate;
-import java.io.Serializable;
+	import java.io.Serializable;
 	import java.util.ArrayList;
 	import java.util.List;
 
 
-	public class AgentPlayer  extends Agent{
+public class AgentPlayer  extends Agent {
+
+
 					private double dinheiro;
 					private int nrAgentesFold;
 					private IPlayer jogador;
-				private List<Card> table;
-			private int myRank,round,bet,pot,toRaise;
+					private List<Card> table;
+					private int myRank,round,bet,pot,toRaise;
 		
 					
 					@Override
@@ -31,7 +33,6 @@ import java.io.Serializable;
 					this.nrAgentesFold=0;
 					this.dinheiro=0;
 					this.addBehaviour(new SendMessageEntrance() );
-				
 					
 					}
 			
@@ -167,6 +168,9 @@ import java.io.Serializable;
 				public void action(){
 					ACLMessage msg = receive();
 					if(msg != null){
+
+						try{
+
 						if(msg.getOntology().equals(Ontologias.PERGUNTAR)){
 					 		int quantia = (int)msg.getContentObject();
 							responder(quantia);
@@ -190,6 +194,12 @@ import java.io.Serializable;
 							dinheiro += quantia;
 							finished = true;
 						}
+					
+					} catch (Exception e) {
+						System.out.println(e.getMessage());
+					}
+					
+					
 					}else block();
 				}
 
@@ -327,10 +337,72 @@ switch(myRank){
 *round 2 
 */
 		}    
-			
 
+	/************************************************* Respostas *************************************************/			
+
+private class sendMessageCall extends OneShotBehaviour{
+	int quantia;
+	 public sendMessageCall(int q) {
+	quantia = q;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName("Dealer");
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.JOGA);
+			
+			msg.setContentObject(quantia);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+			
+		}
+
+
+private class sendMessageRaise extends OneShotBehaviour{
+	int quantia;
+	 public sendMessageRaise(int q) {
+	quantia = q;
+	}
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName("Dealer");
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.RAISE);
+			
+			msg.setContentObject(quantia);
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+			
+		}
+
+
+	private class sendMessageFold extends OneShotBehaviour{
 	
-		/************************************************* Metodos *************************************************/    
+	
+		@Override 
+		public void action(){
+			AID receiver = new AID();
+			receiver.setLocalName("Dealer");
+			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+			msg.setOntology(Ontologias.FOLD);
+			
+			msg.addReceiver(receiver);
+			myAgent.send(msg);
+			
+			
+		}
+	
+		}
+	/************************************************* Metodos *************************************************/    
+			
 			public double getDinheiro() {
 					return dinheiro;
 			}
@@ -352,13 +424,7 @@ switch(myRank){
 					
 			}
 			
-			
-			
-			
-		
-			
-			
-			
+				
 			
 
 	}
