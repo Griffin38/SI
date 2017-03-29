@@ -131,6 +131,8 @@ public class AskTable extends SimpleBehaviour{
 	this.addBehaviour(seq);
 
 	//se deu raise -> raised == true ; update lastRaiseID
+	//se deu reraise updateLastRaiseID
+	//se saiu remover da playersHand e nao se incremente o indexactual
 	if(indexActual < last){
 	indexActual++;
 	}else if(indexActual == last ){
