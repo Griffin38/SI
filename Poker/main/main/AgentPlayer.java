@@ -202,7 +202,81 @@ private class SendMessageEntrance extends OneShotBehaviour{
 				}
 
 		}
-		
+		/************************************************* Respostas *************************************************/			
+
+		private class sendMessageCall extends OneShotBehaviour{
+			int quantia;
+			 public sendMessageCall(int q) {
+			quantia = q;
+			}
+				@Override 
+				public void action(){
+					AID receiver = new AID();
+					receiver.setLocalName("Dealer");
+					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+					msg.setOntology(Ontologias.JOGA);
+					
+					try {
+						msg.setContentObject(quantia);
+						dinheiro-=quantia;
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					msg.addReceiver(receiver);
+					myAgent.send(msg);
+					
+					
+				}
+					
+				}
+
+
+		private class sendMessageRaise extends OneShotBehaviour{
+			int quantia;
+			 public sendMessageRaise(int q) {
+			quantia = q;
+			}
+				@Override 
+				public void action(){
+					AID receiver = new AID();
+					receiver.setLocalName("Dealer");
+					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+					msg.setOntology(Ontologias.RAISE);
+					
+					try {
+						msg.setContentObject(quantia);
+						dinheiro-=quantia;
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					msg.addReceiver(receiver);
+					myAgent.send(msg);
+					
+					
+				}
+					
+				}
+
+
+			private class sendMessageFold extends OneShotBehaviour{
+			
+			
+				@Override 
+				public void action(){
+					AID receiver = new AID();
+					receiver.setLocalName("Dealer");
+					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+					msg.setOntology(Ontologias.FOLD);
+					
+					msg.addReceiver(receiver);
+					myAgent.send(msg);
+					
+					
+				}
+			
+				}	
 
 
 }
