@@ -24,7 +24,7 @@ public class Dealer  extends Agent{
 	private List<IPlayer> playersHand;
 	private List<Card> tableCards;
 	private int valorApostar;
-    private Map<String,Double> dinheiroApostado;
+        private Map<String,Double> dinheiroApostado;
 	private int pot,lastRaiseID;
 	private boolean raised;
 	
@@ -32,9 +32,13 @@ public class Dealer  extends Agent{
 	
 	protected void setup(){
 		super.setup();
+                this.playersTable=new ArrayList<>();
+                this.playersHand= new ArrayList<>();
                 this.dinheiroApostado=new HashMap<>();
                 this.valorApostar= Ontologias.VALORAPOSTAR;
 		this.addBehaviour(new ReceiveBehaviourJogadores());
+                this.addBehaviour(new DealJob());
+                
 		
 		//mao behaviour
 		
@@ -47,7 +51,7 @@ public class Dealer  extends Agent{
 		@Override
 		public void action() {
 			
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
 			MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.ENTRAR);
 			MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
 			ACLMessage msg = receive(mtEntrada);
@@ -55,6 +59,7 @@ public class Dealer  extends Agent{
 			if(msg != null){
 				
 				try {
+                                       
 					//adicionar o jogador a mesa
 					playersTable.add( (IPlayer) msg.getContentObject());
 					
@@ -74,14 +79,22 @@ public class Dealer  extends Agent{
 	
 	/************************************************* DEAL BEHAVIOUR *************************************************/
 	
-	private class DealJob extends SimpleBehaviour{
-		private boolean finished = false;
+	private class DealJob extends CyclicBehaviour{
+		
 		
 		@Override
 		public void action(){
 			
+                    MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.COMECAR);
+			MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
+			ACLMessage msg = receive(mtEntrada);
 			
-			if(playersTable.size() > 1 ){
+                        if(msg!=null) {
+                        
+                           
+			
+                            
 			newHand();
 			hand =true;
 			
@@ -95,6 +108,8 @@ public class Dealer  extends Agent{
 			//dar o pot ao vencedor 
 			//ver se alguem sai da mesa
 			hand = false;
+                        
+                        
 			
 		}	
 		}
@@ -102,11 +117,6 @@ public class Dealer  extends Agent{
 		
 		
 		
-			@Override
-			public boolean done() {
-				if(playersTable.size()==1) finished = true;
-				return finished;
-			}
 			
 			
 			

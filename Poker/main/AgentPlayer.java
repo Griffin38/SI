@@ -1,53 +1,80 @@
-	package main;
+package main;
 
 
-	import cartas.Card;
-	import cartas.IPlayer;
-	import cartas.Player;
-	import cartas.RankingUtil;
-	import jade.core.*;
-	import jade.core.behaviours.CyclicBehaviour;
-	import jade.core.behaviours.OneShotBehaviour;
-	import jade.core.behaviours.SequentialBehaviour;
-	import jade.core.behaviours.SimpleBehaviour;
-	import jade.lang.acl.ACLMessage;
-	import jade.lang.acl.MessageTemplate;
-
+import cartas.Card;
+import cartas.IPlayer;
+import cartas.Player;
+import cartas.RankingUtil;
+import jade.core.*;
+import jade.core.behaviours.CyclicBehaviour;
+import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.SequentialBehaviour;
+import jade.core.behaviours.SimpleBehaviour;
+import jade.lang.acl.ACLMessage;
+import jade.lang.acl.MessageTemplate;
 import java.io.IOException;
 import java.io.Serializable;
-	import java.util.ArrayList;
-	import java.util.List;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class AgentPlayer  extends Agent {
 
 
-					private double dinheiro;
-					private int nrAgentesFold;
-					private IPlayer jogador;
-					private List<Card> table;
-					private int myRank,round,bet,pot,toRaise;
-		
-					
-					@Override
-			protected void setup() {
-					super.setup();
-					this.nrAgentesFold=0;
-					this.dinheiro=0;
-					this.addBehaviour(new SendMessageEntrance() );
-					
-					}
-			
+    private double dinheiro;
+    private int nrAgentesFold;
+    private IPlayer jogador;
+    private List<Card> table;
+    private int myRank,round,bet,pot,toRaise;
 
+
+    @Override
+    protected void setup() {
+    super.setup();
+    this.nrAgentesFold=0;
+    this.dinheiro=0;
+    this.jogador = new Player(getName());
+    this.addBehaviour(new SendMessageEntrance() );
+
+    }
+
+
+    
+  private class ReceiveBehaviour extends OneShotBehaviour {
+  		
+ 	
+ 	@Override
+ 		public void action(){
+ 			
+ 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+ 		MessageTemplate mtJ = MessageTemplate.MatchOntology(Ontologias.RECEVEDINHEIRO);
+ 			MessageTemplate mtRespJogo = MessageTemplate.and(mt, mtJ);
+ 			ACLMessage msg = receive(mtRespJogo);
+ 			
+ 			if(msg != null){
+ 				
+ 				try {
+ 					dinheiro = Double.parseDouble( msg.getContent());
+ 					
+                                         
+                                                 
+ 
+ 				} catch (Exception e) {
+ 				System.out.println(e.getMessage());
+ 				}
+ 				
+ 			}else
+ 		block();
+ 				
+ 			}
+ 		}
+    
 					
 		
 		
-			
+		
 	private class SendMessageEntrance extends OneShotBehaviour{
 			
-			public SendMessageEntrance (){
-			jogador = new Player(this.getAgent().getName());
-			}
 			@Override 
 			public void action(){
 				AID receiver = new AID();
@@ -58,7 +85,7 @@ public class AgentPlayer  extends Agent {
 					msg.setContentObject((Serializable) jogador);
 					msg.addReceiver(receiver);
 					myAgent.send(msg);
-					addBehaviour(new ReceiveBehaviourJogador());
+					
 				} catch (Exception e) {
 					
 				System.out.println(e.getMessage());
