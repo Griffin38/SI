@@ -28,6 +28,8 @@ public class Software extends GuiAgent{
         super.setup(); 
        this.myGui = new Inicio(this);
         myGui.setVisible(true);
+        
+        
     }
     
     
