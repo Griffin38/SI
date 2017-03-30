@@ -6,16 +6,15 @@ package main;
  */
 
 
-import jade.*;
 import jade.core.Profile;
 import jade.core.ProfileImpl;
 import jade.gui.GuiEvent;
-import static jade.tools.sniffer.Agent.i;
 import jade.wrapper.AgentController;
 import jade.wrapper.ContainerController;
-import jade.wrapper.StaleProxyException;
 import java.util.*;
 import javax.swing.JOptionPane;
+import jade.core.Runtime;
+import jade.wrapper.AgentContainer;
 
 /**
  *
@@ -24,9 +23,16 @@ import javax.swing.JOptionPane;
 public class Inicio extends javax.swing.JDialog {
     
     private List<Double> jogadores;
+    
+    
+    private Software main;
+    private Runtime r;
+    private jade.core.Runtime rt;
     private int nrJogadores;
-    private ContainerController container;
-    public final static String NOMEAGENTE ="agentNick ";
+     private ContainerController container;
+     private Profile profile;
+  
+    
     /**
      * Creates new form Inicio
      */
@@ -38,20 +44,23 @@ public class Inicio extends javax.swing.JDialog {
         
     }
 
-    public Inicio(ContainerController c) {
+    
+    
+    
+
+    public Inicio( Software aThis) {
     initComponents();
-    this.container=c;
+     
+     
+    
+        
     this.jogadores = new ArrayList<>();
     this.nrJogadores=0;
+    this.main=aThis;  
+    crearCenas();
     
     
-    
-    
-    
-        
-        
     }
-    
  
     
     /**
@@ -148,9 +157,10 @@ public class Inicio extends javax.swing.JDialog {
         
         if(dinheiro >0) {
              
-            
+           
+ 
      
-                AgentController ag = container.createNewAgent(NOMEAGENTE+this.nrJogadores, 
+                AgentController ag = container.createNewAgent(Ontologias.NOMEAGENTE+this.nrJogadores, 
                                               "main.AgentPlayer", 
                                               new Object[] {});
                 ag.start();
@@ -177,21 +187,46 @@ public class Inicio extends javax.swing.JDialog {
        
     }//GEN-LAST:event_jButton1MouseClicked
 
+   
     private void jButton2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton2MouseClicked
         // TODO add your handling code here:
         
         if(this.jogadores.size()>1) {
         
-     //   GuiEvent ge = new GuiEvent(this.jogadores,1);
+      GuiEvent ge = new GuiEvent(this.jogadores,1);
             
        
-      //  sof.postGuiEvent(ge);
-        
+       main.postGuiEvent(ge);
         }
+        
+        else {
+        
+           JOptionPane.showMessageDialog(null,"Introduza mais jogadores.","Erro",JOptionPane.ERROR_MESSAGE);
+        }
+        
         
         
     }//GEN-LAST:event_jButton2MouseClicked
 
+    
+    private void crearCenas() {
+     
+        this.rt = jade.core.Runtime.instance();
+            
+             this.profile = new ProfileImpl();
+             profile.setParameter(Profile.CONTAINER_NAME, "JogadoresCriados");
+             profile.setParameter(Profile.MAIN_HOST, "localhost");
+ 
+         this.container = this.rt.createAgentContainer(profile);
+         
+         
+  }
+     
+	
+        
+       
+    
+    
     /**
      * @param args the command line arguments
      */

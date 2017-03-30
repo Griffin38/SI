@@ -11,6 +11,7 @@ package main;
  */
 public class Ontologias {
     public static final String DINHEIRO= "DINHEIRO";
+    public static final String COMECAR= "Comecar";
     public static final String DESISTIU = "DESISTIU";
     public static final String FOLD = "FOLD";
     public static final String JOGADOR = "JOGADOR";
@@ -29,6 +30,8 @@ public class Ontologias {
     public static final String RAISE="Raise";
     public static final String JOGA="Joga";
     public static final String RERAISE="RERAISE";
+    public static final String RECEVEDINHEIRO="RecebeDinheiro";
+    public final static String NOMEAGENTE ="agentNick ";
     public static final int VALORAPOSTAR= 10;
     
     

@@ -1,7 +1,5 @@
 package main;
 
-import cartas.*;
-import cartas.IPlayer;
 import jade.core.*;
 import jade.core.Runtime;
 import jade.wrapper.*;
@@ -20,7 +18,7 @@ public class Main {
 	prof.setParameter(Profile.MAIN_PORT, port);
 	prof.setParameter(Profile.MAIN, "true");
 	prof.setParameter(Profile.GUI, "true");
-    prof.setParameter(Profile.CONTAINER_NAME, "Tester");
+        prof.setParameter(Profile.CONTAINER_NAME, "Tester");
 	this.container = rt.createMainContainer(prof);
 	rt.setCloseVM(true);
 	}
@@ -29,8 +27,8 @@ public class Main {
 		Main mc = new Main();
 		mc.initMainContainer("127.0.0.1", "1090");
 		mc.startAgentInPlatform("Dealer", "main.Dealer");
-		mc.myGui = new Inicio(mc.container);
-	    mc.myGui.setVisible(true);
+                mc.startAgentInPlatform("Software","main.Software");
+		 
 		/*
 		//input quantos jogadores
 		int x = 3;
@@ -44,6 +42,9 @@ public class Main {
                 
 
 	}
+     
+         
+       
 	
 	public void startAgentInPlatform(String name, String classpath){
 		try {
@@ -56,4 +57,6 @@ public class Main {
 		e.printStackTrace();
 		}
 		}
+
+     
 }
