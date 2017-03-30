@@ -152,11 +152,11 @@ private class SendMessageEntrance extends OneShotBehaviour{
 		}
 
 	}   
-	/************************************************* DECISAO *************************************************/
+	/************************************************* Comunicar Mao *************************************************/
 		private class PlayGame extends SimpleBehaviour{
 			private boolean finished = false;
 			
-			
+			@Override
 				public void action(){
 					ACLMessage msg = receive();
 					if(msg != null){
@@ -165,7 +165,7 @@ private class SendMessageEntrance extends OneShotBehaviour{
 
 						if(msg.getOntology().equals(Ontologias.PERGUNTAR)){
 					 		int quantia = (int)msg.getContentObject();
-							//responder(quantia);
+							addBehaviour(new RespondeDealer(quantia));
 							round++;
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
 							Card cturn = (Card)msg.getContentObject();
@@ -202,10 +202,24 @@ private class SendMessageEntrance extends OneShotBehaviour{
 				}
 
 		}
+		
+		/*************************************************Decidir  Resposta *************************************************/
+		private class RespondeDealer extends OneShotBehaviour{
+			private int quantia;
+			 public RespondeDealer(int q) {
+					quantia = q;
+					}
+			
+			@Override
+			public void action(){
+				addBehaviour(new sendMessageCall(quantia));
+			}
+		}
+		
 		/************************************************* Respostas *************************************************/			
 
 		private class sendMessageCall extends OneShotBehaviour{
-			int quantia;
+			private int quantia;
 			 public sendMessageCall(int q) {
 			quantia = q;
 			}

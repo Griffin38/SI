@@ -279,7 +279,7 @@ private class RespostasPlayer extends OneShotBehaviour{
 						if(msg.getOntology().equals(Ontologias.RAISE)){
 					 		
 						}else if(msg.getOntology().equals(Ontologias.JOGA)){
-						
+						System.out.println("Jogando");
 						}else if(msg.getOntology().equals(Ontologias.FOLD)){
 						
 						}else if(msg.getOntology().equals(Ontologias.RERAISE)){
