@@ -12,7 +12,9 @@
 	import jade.core.behaviours.SimpleBehaviour;
 	import jade.lang.acl.ACLMessage;
 	import jade.lang.acl.MessageTemplate;
-	import java.io.Serializable;
+
+import java.io.IOException;
+import java.io.Serializable;
 	import java.util.ArrayList;
 	import java.util.List;
 
@@ -358,7 +360,12 @@ private class sendMessageCall extends OneShotBehaviour{
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 			msg.setOntology(Ontologias.JOGA);
 			
-			msg.setContentObject(quantia);
+			try {
+				msg.setContentObject(quantia);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			msg.addReceiver(receiver);
 			myAgent.send(msg);
 			
@@ -380,7 +387,12 @@ private class sendMessageRaise extends OneShotBehaviour{
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 			msg.setOntology(Ontologias.RAISE);
 			
-			msg.setContentObject(quantia);
+			try {
+				msg.setContentObject(quantia);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			msg.addReceiver(receiver);
 			myAgent.send(msg);
 			
