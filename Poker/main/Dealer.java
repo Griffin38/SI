@@ -256,7 +256,7 @@ public class RecebeAgenteAposta extends SimpleBehaviour {
             ACLMessage msg = receive(mtRespClass);
            
             if(msg != null){    
-                String g = msg.getSender().getName();
+                String g = msg.getSender().getLocalName();
                 double d = Double.valueOf(msg.getContent());
                 
                 if(d==-1) removerAgenteHand(g);
@@ -334,7 +334,7 @@ public class RecebeRaise extends OneShotBehaviour {
             
             if(msg!=null) {
                 double dinheiro =Double.valueOf(msg.getContent());
-                String nome = msg.getSender().getName();
+                String nome = msg.getSender().getLocalName();
                 if(dinheiro==-1) {
                     removerAgenteHand(nome);
                     if(dinheiroApostado.containsKey(nome))
@@ -365,6 +365,7 @@ public class RecebeRaise extends OneShotBehaviour {
 		public void action(){
 			AID receiver = new AID();
 			receiver.setLocalName(receiverN);
+                        System.out.println(receiverN);
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 			msg.setOntology(Ontologias.NOVAMAO);
 			

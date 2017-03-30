@@ -33,7 +33,7 @@ public class AgentPlayer  extends Agent {
     super.setup();
     this.nrAgentesFold=0;
     this.dinheiro=0;
-    this.jogador = new Player(getName());
+    this.jogador = new Player(getLocalName());
     this.addBehaviour(new SendMessageEntrance() );
 
     }
