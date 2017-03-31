@@ -25,7 +25,7 @@ public class Dealer  extends Agent{
     //rondas
     private List<Card> tableCards;
     private int toCall,pot;
-    private boolean raised,hand,lastRaised;
+    private boolean raised,hand;
     private Map<String,Integer> dinheiroApostado;
 
 protected void setup(){
@@ -95,24 +95,26 @@ private class WorkWork extends SimpleBehaviour{
         
         @Override
 		public void action(){
+        	if(!hand){
         	hand = true;
             SequentialBehaviour seq = new SequentialBehaviour();
             seq.addSubBehaviour(new NewHand());
-            seq.addSubBehaviour(new AskTable());
-            seq.addSubBehaviour(new Flop());
-            seq.addSubBehaviour(new AskTable());
-            seq.addSubBehaviour(new Turn());
-            seq.addSubBehaviour(new AskTable());
-            seq.addSubBehaviour(new River());
-            seq.addSubBehaviour(new AskTable());
-            seq.addSubBehaviour(new Winner());
+            seq.addSubBehaviour(new AskTable(0));
+          //  seq.addSubBehaviour(new Flop());
+          //  seq.addSubBehaviour(new AskTable(0));
+          //  seq.addSubBehaviour(new Turn());
+          //  seq.addSubBehaviour(new AskTable(0));
+           // seq.addSubBehaviour(new River());
+           // seq.addSubBehaviour(new AskTable(0));
+           // seq.addSubBehaviour(new Winner());
             seq.addSubBehaviour(new Clean());
             addBehaviour(seq);
+        	}
         }
 
         @Override
         public boolean done(){
-            if(playersInTable.size() == 1) finished = true;
+            if(playersInTable.size() == 1 && !hand) finished = true;
             return finished;
         }
 }
@@ -126,7 +128,7 @@ private class NewHand extends OneShotBehaviour{
 		    baralho = new Deck();
 			tableCards = new ArrayList<>();
 			playersInHand = new ArrayList<>();
-        
+			toCall = 50;
         for(Player p : playersInTable){
 				playersInHand.add(p);
 				addBehaviour(new sendMessageNewHand(p.getNome()));
@@ -216,46 +218,32 @@ private class Clean extends OneShotBehaviour{
 
 }
 	/************************************************* Perguntar *************************************************/
-public class AskTable extends SimpleBehaviour{
-	private boolean finished = false;
+public class AskTable extends OneShotBehaviour{
+	
 	
 	private int indexActual;
 	
-	public AskTable( ){
-	raised = false;
-	indexActual = 0;
+	public AskTable( int index){
+	
+	indexActual = index;
 	
 	
 	}
-	public void action(){
-	int last = playersInHand.size();
 	
+	 @Override
+	public void action(){
+	
+		 if(indexActual < playersInHand.size()){
 	//Collections.rotate(numbers, numbers.size() -5);
 	Player p = (Player)playersInHand.get(indexActual);
 	SequentialBehaviour seq = new SequentialBehaviour();
 	seq.addSubBehaviour(new PerguntaAgenteJoga(p.getNome(),toCall));
-	seq.addSubBehaviour(new RespostasPlayer());
+	seq.addSubBehaviour(new RespostasPlayer(indexActual));
 	addBehaviour(seq);
-	if(raised ){
-		lastRaised = true;
-		Collections.rotate(playersInHand, playersInHand.size() -indexActual);
-		raised = false;
-		indexActual = 0;
-	}else{
-		indexActual++;
-	}
-	//se deu raise -> raised == true ; update lastRaiseID
-	//se deu reraise updateLastRaiseID
-	//se saiu remover da playersHand e nao se incremente o indexactual
-		if(indexActual == last -1)
-  
-	finished = true;
+		 }
+	
 				}
-				@Override
-				public boolean done() {
-					
-					return finished;
-				}
+				
 	
 }
 
@@ -264,7 +252,16 @@ public class AskTable extends SimpleBehaviour{
 
 private class RespostasPlayer extends OneShotBehaviour{
 
-
+	
+	private int indexActual;
+	
+	public RespostasPlayer( int index){
+	
+	indexActual = index;
+	
+	
+	}
+	 			@Override
 				public void action(){
 				ACLMessage msg = receive();
 					if(msg != null){
@@ -272,15 +269,12 @@ private class RespostasPlayer extends OneShotBehaviour{
 						try{
 								
 						if(msg.getOntology().equals(Ontologias.RAISE)){
-					 		
+					 		raised = true;
 						}else if(msg.getOntology().equals(Ontologias.JOGA)){
 						System.out.println("Jogando");
 						}else if(msg.getOntology().equals(Ontologias.FOLD)){
 						
-						}else if(msg.getOntology().equals(Ontologias.RERAISE)){
-						
 						}
-
 							} catch (Exception e) {
 							System.out.println(e.getMessage());
 									}
@@ -289,7 +283,20 @@ private class RespostasPlayer extends OneShotBehaviour{
 					}else block();
 
 									}
-
+	 			
+	 			@Override
+					public int onEnd(){
+						if(raised ){
+							 
+							Collections.rotate(playersInHand, playersInHand.size() -indexActual);
+							raised = false;
+							addBehaviour(new AskTable(1));
+						}else {
+							
+							addBehaviour(new AskTable(indexActual +1));
+						}
+						return 1;
+					}
 }
 /************************************************* Updates *************************************************/		
 

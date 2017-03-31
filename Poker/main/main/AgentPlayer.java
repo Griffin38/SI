@@ -42,7 +42,7 @@ private class SendMessageEntrance extends OneShotBehaviour{
 					msg.setContentObject((Player) jogador);
 					msg.addReceiver(receiver);
 					myAgent.send(msg);
-					
+					addBehaviour(new ReceiveBehaviourJogador());
 				} catch (Exception e) {
 					
 				System.out.println(e.getMessage());
@@ -72,10 +72,10 @@ private class SendMessageEntrance extends OneShotBehaviour{
 						
 						SequentialBehaviour seq = new SequentialBehaviour();
 						seq.addSubBehaviour(new NewCards());
-						seq.addSubBehaviour(new GetFlop());
+						seq.addSubBehaviour(new PlayGame());
 						addBehaviour(seq);
 																				
-																					
+						 											
 																				
 
 					} catch (Exception e) {
@@ -125,33 +125,7 @@ private class SendMessageEntrance extends OneShotBehaviour{
 
 	}
 			
-	private class GetFlop extends OneShotBehaviour{
-		@Override
-			public void action(){
-				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
-				MessageTemplate mtJ = MessageTemplate.MatchOntology(Ontologias.FLOP);
-				MessageTemplate mtResp = MessageTemplate.and(mt, mtJ);
-				ACLMessage msg = receive(mtResp);
-				
-				if(msg != null){
-					
-					try {
-
-						tableCards =(List<Card>) msg.getContentObject(); 
-							
-								       
-								addBehaviour(new PlayGame());             
-								
-
-					} catch (Exception e) {
-						System.out.println(e.getMessage());
-					}
-					
-				}else
-				block();
-		}
-
-	}   
+  
 	/************************************************* Comunicar Mao *************************************************/
 		private class PlayGame extends SimpleBehaviour{
 			private boolean finished = false;
@@ -167,10 +141,13 @@ private class SendMessageEntrance extends OneShotBehaviour{
 					 		int quantia = (int)msg.getContentObject();
 							addBehaviour(new RespondeDealer(quantia));
 							round++;
+						}else if(msg.getOntology().equals(Ontologias.FLOP)){
+							tableCards =(List<Card>) msg.getContentObject(); 
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
 							Card cturn = (Card)msg.getContentObject();
 							tableCards.add(cturn);
-						}else if (msg.getOntology().equals(Ontologias.RIVER)){
+						}
+						else if (msg.getOntology().equals(Ontologias.RIVER)){
 							Card criver = (Card)msg.getContentObject();
 							tableCards.add(criver);
 						}else if (msg.getOntology().equals(Ontologias.RAISE)){
