@@ -20,7 +20,7 @@ import java.util.List;
 public class AgentPlayer extends Agent {
 
         // propriedades AgentPlayer
-        private int dinheiro, myRank,round,bet,pot,toRaise;
+        private int dinheiro, myRank,round,bet,pot,toRaise,folded,npTable;
         private Player jogador;
         private List<Card> tableCards;
     
@@ -76,7 +76,10 @@ private class SendMessageEntrance extends OneShotBehaviour{
 					try {
 						tableCards = new ArrayList<>();
 						round = bet= pot = toRaise = 0;
-						
+						npTable = (int) msg.getContentObject();
+/************************************** */
+System.out.println("nova mao: "+ npTable + " Nome: "+getLocalName());
+/********************************************** */
 						SequentialBehaviour seq = new SequentialBehaviour();
 						seq.addSubBehaviour(new NewCards());
 						seq.addSubBehaviour(new PlayGame());
@@ -113,6 +116,9 @@ private class SendMessageEntrance extends OneShotBehaviour{
 						List<Card> mao =(List<Card>) msg.getContentObject();
 						int i = 0;
 						for(Card a : mao){
+/************************************** */
+System.out.println("nova Carta: "+ a.toString() + " Nome: "+getLocalName());
+/********************************************** */
 							cards[i] = a ;
 							i++;
 						}
@@ -139,7 +145,8 @@ private class SendMessageEntrance extends OneShotBehaviour{
 			
 			@Override
 				public void action(){
-					ACLMessage msg = receive();
+				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+					ACLMessage msg = receive(mt);
 					if(msg != null){
 
 						try{
@@ -150,22 +157,31 @@ private class SendMessageEntrance extends OneShotBehaviour{
 							round++;
 						}else if(msg.getOntology().equals(Ontologias.FLOP)){
 							tableCards =(List<Card>) msg.getContentObject(); 
+/************************************** */
+System.out.println("Flop: "+ tableCards.toString() + " Nome: "+getLocalName());
+/********************************************** */
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
 							Card cturn = (Card)msg.getContentObject();
 							tableCards.add(cturn);
-						}
-						else if (msg.getOntology().equals(Ontologias.RIVER)){
+/************************************** */
+System.out.println("Turn: "+ tableCards.toString() + " Nome: "+getLocalName());
+/********************************************** */
+						}else if (msg.getOntology().equals(Ontologias.RIVER)){
 							Card criver = (Card)msg.getContentObject();
 							tableCards.add(criver);
-						}else if (msg.getOntology().equals(Ontologias.RAISE)){
-							//
-							//Raise
-						}else if(msg.getOntology().equals(Ontologias.PERDEU)){
+/************************************** */
+System.out.println("River: "+ tableCards.toString() + " Nome: "+getLocalName());
+/********************************************** */
+						}else if (msg.getOntology().equals(Ontologias.POT)){
+							
+						}else if (msg.getOntology().equals(Ontologias.DESISTIRAM)){
+							
+						}else if(msg.getOntology().equals(Ontologias.LOSS)){
 							if(dinheiro == 0){ 
 								//add pedir para sair 
 							}
 							finished = true;
-						}else if(msg.getOntology().equals(Ontologias.DINHEIRO)){
+						}else if(msg.getOntology().equals(Ontologias.WIN)){
 							int quantia = (int)msg.getContentObject();
 							dinheiro += quantia;
 							finished = true;
@@ -200,6 +216,23 @@ private class SendMessageEntrance extends OneShotBehaviour{
 			}
 		}
 		
+		private class RespondeDecide extends OneShotBehaviour{
+			@Override
+			public void action(){
+			switch (round) {
+            case 0:  //responder Incio
+                     break;
+			case 1:  //responder FLop
+                     break;
+			case 2: //responder turn
+                     break;
+			case 3: //respnder river
+                     break;
+				}
+			}
+
+
+		}
 		/************************************************* Respostas *************************************************/			
 
 		private class sendMessageCall extends OneShotBehaviour{

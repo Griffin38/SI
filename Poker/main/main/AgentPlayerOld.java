@@ -219,12 +219,12 @@ public class AgentPlayerOld  extends Agent {
 						}else if (msg.getOntology().equals(Ontologias.RAISE)){
 							//
 							//Raise
-						}else if(msg.getOntology().equals(Ontologias.PERDEU)){
+						}else if(msg.getOntology().equals(Ontologias.LOSS)){
 							if(dinheiro == 0){ 
 								//add pedir para sair 
 							}
 							finished = true;
-						}else if(msg.getOntology().equals(Ontologias.DINHEIRO)){
+						}else if(msg.getOntology().equals(Ontologias.WIN)){
 							int quantia = (int)msg.getContentObject();
 							dinheiro += quantia;
 							finished = true;
