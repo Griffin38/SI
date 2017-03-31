@@ -18,6 +18,7 @@ import java.util.Map.Entry;
 
 public class Dealer  extends Agent{
 
+
     //baralho e jogadores 
     private Deck baralho;
     private List<Player> playersInTable;
@@ -39,6 +40,7 @@ protected void setup(){
 
 
 /************************************************* ACEITAR JOGADORES *************************************************/
+
 	
 	private class ReceiveBehaviourJogadores  extends  CyclicBehaviour {
 		
@@ -53,6 +55,7 @@ protected void setup(){
 			if(msg != null){
 				
 				try {
+                                       
 					//adicionar o jogador a mesa
 					playersInTable.add( (Player) msg.getContentObject());
 					} catch (Exception e) {
@@ -69,27 +72,33 @@ protected void setup(){
 	
 	/************************************************* DEAL BEHAVIOUR *************************************************/
 	
+
 	private class DealJob extends CyclicBehaviour{		 
 
 		@Override
 		public void action(){
 			
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+
 			MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.COMECAR);
 			MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
 			ACLMessage msg = receive(mtEntrada);
 			
                         if(msg!=null) {
+
      
                         addBehaviour(new WorkWork());
+
                         
 			
 		}	
 		}
+
 }
 
 
 private class WorkWork extends SimpleBehaviour{
+
 
 	private boolean finished = false;
         
@@ -309,6 +318,7 @@ private class RespostasPlayer extends OneShotBehaviour{
 					}else block();
 
 									}
+
 	 			
 	 			@Override
 					public int onEnd(){
@@ -323,6 +333,7 @@ private class RespostasPlayer extends OneShotBehaviour{
 						}
 						return 1;
 					}
+
 }
 /************************************************* Updates *************************************************/		
 

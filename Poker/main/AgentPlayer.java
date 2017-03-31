@@ -1,7 +1,10 @@
 package main;
 
 
+
 import cartas.*;
+
+
 import jade.core.*;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
@@ -10,6 +13,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import java.io.IOException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,11 +30,14 @@ public class AgentPlayer extends Agent {
     
     dinheiro=5000;
     jogador = new Player(getLocalName());
+
     this.addBehaviour(new SendMessageEntrance() );
 
     }
 
+
 private class SendMessageEntrance extends OneShotBehaviour{
+
 			
 			@Override 
 			public void action(){
@@ -42,7 +49,7 @@ private class SendMessageEntrance extends OneShotBehaviour{
 					msg.setContentObject((Player) jogador);
 					msg.addReceiver(receiver);
 					myAgent.send(msg);
-					addBehaviour(new ReceiveBehaviourJogador());
+					
 				} catch (Exception e) {
 					
 				System.out.println(e.getMessage());

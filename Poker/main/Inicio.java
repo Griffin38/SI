@@ -208,9 +208,11 @@ public class Inicio extends javax.swing.JDialog {
        
        main.postGuiEvent(ge);
         }
+
         
         else {
         
+
            JOptionPane.showMessageDialog(null,"Introduza mais jogadores.","Erro",JOptionPane.ERROR_MESSAGE);
         }
         
