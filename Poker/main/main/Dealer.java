@@ -24,8 +24,8 @@ public class Dealer  extends Agent{
     private List<Player> playersInHand;
     //rondas
     private List<Card> tableCards;
-    private int toCall,pot,lastRaisedID;
-    private boolean raised,hand;
+    private int toCall,pot;
+    private boolean raised,hand,lastRaised;
     private Map<String,Integer> dinheiroApostado;
 
 protected void setup(){
@@ -225,36 +225,31 @@ public class AskTable extends SimpleBehaviour{
 	raised = false;
 	indexActual = 0;
 	
-	lastRaisedID = playersInTable.size();
+	
 	}
 	public void action(){
-	int last = playersInTable.size();
-	if(indexActual <= last  && indexActual != lastRaisedID){
+	int last = playersInHand.size();
 	
-	Player p = (Player)playersInTable.get(indexActual);
+	//Collections.rotate(numbers, numbers.size() -5);
+	Player p = (Player)playersInHand.get(indexActual);
 	SequentialBehaviour seq = new SequentialBehaviour();
 	seq.addSubBehaviour(new PerguntaAgenteJoga(p.getNome(),toCall));
 	seq.addSubBehaviour(new RespostasPlayer());
 	addBehaviour(seq);
-
+	if(raised ){
+		lastRaised = true;
+		Collections.rotate(playersInHand, playersInHand.size() -indexActual);
+		raised = false;
+		indexActual = 0;
+	}else{
+		indexActual++;
+	}
 	//se deu raise -> raised == true ; update lastRaiseID
 	//se deu reraise updateLastRaiseID
 	//se saiu remover da playersHand e nao se incremente o indexactual
-	if(indexActual < last){
-	indexActual++;
-	}else if(indexActual == last ){
-		if(raised){
-			indexActual =0;
-		}else{
-			finished = true;
-		}
-
-	}
-   }
-   else  if(indexActual == lastRaisedID && raised ){
+		if(indexActual == last -1)
+  
 	finished = true;
-   }
-	
 				}
 				@Override
 				public boolean done() {
