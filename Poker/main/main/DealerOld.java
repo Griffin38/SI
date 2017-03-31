@@ -497,7 +497,7 @@ public class RecebeRaise extends OneShotBehaviour {
 			AID receiver = new AID();
 			receiver.setLocalName(receiverN);
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-			msg.setOntology(Ontologias.DINHEIRO);
+			msg.setOntology(Ontologias.WIN);
 			
 			try {
 				msg.setContentObject(premio);
@@ -525,7 +525,7 @@ String receiverN;
 			AID receiver = new AID();
 			receiver.setLocalName(receiverN);
 			ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-			msg.setOntology(Ontologias.PERDEU);
+			msg.setOntology(Ontologias.LOSS);
 			
 			msg.addReceiver(receiver);
 			myAgent.send(msg);

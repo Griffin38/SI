@@ -25,7 +25,7 @@ public class Dealer  extends Agent{
     private List<Player> playersInHand;
     //rondas
     private List<Card> tableCards;
-    private int toCall,pot,round;
+    private int toCall,pot,round,folded;
     private boolean raised,hand;
     private Map<String,Integer> dinheiroApostado;
 
@@ -68,8 +68,57 @@ protected void setup(){
 		}
 		
 	} 
-	
-	
+	/************************************************* Requests *************************************************/
+	private class ReceiveRequestDesistiram  extends  CyclicBehaviour {
+		
+		@Override
+		public void action() {
+			
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+			MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.DESISTIRAM);
+			MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
+			ACLMessage msg = receive(mtEntrada);
+			
+			if(msg != null){
+				
+				try {
+                    //mandar numero a player                   
+					
+					} catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+				
+			}else
+			block();
+			
+		}
+		
+	} 
+	private class ReceiveRequestPot  extends  CyclicBehaviour {
+		
+		@Override
+		public void action() {
+			
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+			MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.POT);
+			MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
+			ACLMessage msg = receive(mtEntrada);
+			
+			if(msg != null){
+				
+				try {
+                    //mandar pot a player                   
+					
+					} catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+				
+			}else
+			block();
+			
+		}
+		
+	}
 	/************************************************* DEAL BEHAVIOUR *************************************************/
 	
 
@@ -107,6 +156,7 @@ private class WorkWork extends SimpleBehaviour{
         	if(!hand){
         	hand = true;
         	round = 0;
+        	pot = 0;
             SequentialBehaviour seq = new SequentialBehaviour();
             seq.addSubBehaviour(new NewHand());
             seq.addSubBehaviour(new AsTableControl(0));
@@ -142,7 +192,7 @@ private class NewHand extends OneShotBehaviour{
 			toCall = 50;
         for(Player p : playersInTable){
 				playersInHand.add(p);
-				addBehaviour(new sendMessageNewHand(p.getNome()));
+				addBehaviour(new sendMessageNewHand(p.getNome(),playersInTable.size()));
 			}
 			for (Player player : playersInHand) {
 				List<Card> mao = new ArrayList<Card>();
@@ -214,7 +264,7 @@ private class Winner extends OneShotBehaviour{
 
         @Override
 		public void action(){
-		    
+        	List<IPlayer> win = getWinner();
         }
 
 }
@@ -235,6 +285,7 @@ public class AsTableControl extends SimpleBehaviour{
 	private int rounI ;
 	 public AsTableControl(int i) {
 		rounI  = i;
+		folded = 0;
 	}
 	 @Override
 		public void action(){
@@ -298,7 +349,8 @@ private class RespostasPlayer extends OneShotBehaviour{
 	}
 	 			@Override
 				public void action(){
-				ACLMessage msg = receive();
+	 			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);	
+				ACLMessage msg = receive(mt);
 					if(msg != null){
 							received  = true;
 						try{
@@ -307,6 +359,7 @@ private class RespostasPlayer extends OneShotBehaviour{
 					 		raised = true;
 						}else if(msg.getOntology().equals(Ontologias.JOGA)){
 						System.out.println("Jogando");
+						
 						}else if(msg.getOntology().equals(Ontologias.FOLD)){
 						
 						}
@@ -335,19 +388,14 @@ private class RespostasPlayer extends OneShotBehaviour{
 					}
 
 }
-/************************************************* Updates *************************************************/		
 
-private void checkPlayersRanking() {
-			for (IPlayer player : playersInHand) {
-				RankingUtil.checkRanking(player, tableCards);
-			}
-		}
 
 /************************************************* Mensagens de Ronda *************************************************/		
 private class sendMessageNewHand extends OneShotBehaviour{
-String receiverN;
- public sendMessageNewHand(String playername)  {
-
+private String receiverN;
+private int quant;
+ public sendMessageNewHand(String playername,int quantia)  {
+	quant = quantia;
 	 receiverN = playername;
 }
 
@@ -357,7 +405,12 @@ String receiverN;
 		receiver.setLocalName(receiverN);
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 		msg.setOntology(Ontologias.NOVAMAO);
-		
+		try {
+			msg.setContentObject(quant);
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}
 		msg.addReceiver(receiver);
 		myAgent.send(msg);
 		
@@ -485,7 +538,7 @@ receiverN = playername;
 		AID receiver = new AID();
 		receiver.setLocalName(receiverN);
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-		msg.setOntology(Ontologias.DINHEIRO);
+		msg.setOntology(Ontologias.WIN);
 		
 		try {
 			msg.setContentObject(premio);
@@ -513,7 +566,7 @@ receiverN = playername;
 		AID receiver = new AID();
 		receiver.setLocalName(receiverN);
 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
-		msg.setOntology(Ontologias.PERDEU);
+		msg.setOntology(Ontologias.LOSS);
 		
 		msg.addReceiver(receiver);
 		myAgent.send(msg);
@@ -555,7 +608,149 @@ private class PerguntaAgenteJoga extends OneShotBehaviour {
 
 }
 
+/************************************************* DECIDIR VENCEDOR *************************************************/
+public List<IPlayer> getWinner() {
+	checkPlayersRanking();
+	List<IPlayer> winnerList = new ArrayList<IPlayer>();
+	IPlayer winner = playersInHand.get(0);
+	Integer winnerRank = RankingUtil.getRankingToInt(winner);
+	winnerList.add(winner);
+	for (int i = 1; i < playersInHand.size(); i++) {
+		IPlayer player = playersInHand.get(i);
+		Integer playerRank = RankingUtil.getRankingToInt(player);
+		//Draw game
+		if (winnerRank == playerRank) {
+			IPlayer highHandPlayer = checkHighSequence(winner, player);
+			//Draw checkHighSequence
+			if (highHandPlayer == null) {
+				highHandPlayer = checkHighCardWinner(winner, player);
+			}
+			//Not draw in checkHighSequence or checkHighCardWinner
+			if (highHandPlayer != null && !winner.equals(highHandPlayer)) {
+				winner = highHandPlayer;
+				winnerList.clear();
+				winnerList.add(winner);
+			} else if (highHandPlayer == null) {
+				//Draw in checkHighSequence and checkHighCardWinner
+				winnerList.add(winner);
+			}
+		} else if (winnerRank < playerRank) {
+			winner = player;
+			winnerList.clear();
+			winnerList.add(winner);
+		}
+		winnerRank = RankingUtil.getRankingToInt(winner);
+	}
+	
+	return winnerList;
 }
+
+private IPlayer checkHighSequence(IPlayer player1, IPlayer player2) {
+	Integer player1Rank = sumRankingList(player1);
+	Integer player2Rank = sumRankingList(player2);
+	if (player1Rank > player2Rank) {
+		return player1;
+	} else if (player1Rank < player2Rank) {
+		return player2;
+	}
+	return null;
+}
+
+@SuppressWarnings("unchecked")
+private IPlayer checkHighCardWinner(IPlayer player1, IPlayer player2) {
+	IPlayer winner = compareHighCard(player1, player1.getHighCard(),
+	player2, player2.getHighCard());
+	if (winner == null) {
+		Card player1Card = RankingUtil.getHighCard(player1,
+		Collections.EMPTY_LIST);
+		Card player2Card = RankingUtil.getHighCard(player2,
+		Collections.EMPTY_LIST);
+		winner = compareHighCard(player1, player1Card, player2, player2Card);
+		if (winner != null) {
+			player1.setHighCard(player1Card);
+			player2.setHighCard(player2Card);
+		} else if (winner == null) {
+			player1Card = getSecondHighCard(player1, player1Card);
+			player2Card = getSecondHighCard(player2, player2Card);
+			winner = compareHighCard(player1, player1Card, player2,
+			player2Card);
+			if (winner != null) {
+				player1.setHighCard(player1Card);
+				player2.setHighCard(player2Card);
+			}
+		}
+	}
+	return winner;
+}
+
+private IPlayer compareHighCard(IPlayer player1, Card player1HighCard,
+IPlayer player2, Card player2HighCard) {
+	if (player1HighCard.getRankToInt() > player2HighCard.getRankToInt()) {
+		return player1;
+	} else if (player1HighCard.getRankToInt() < player2HighCard
+	.getRankToInt()) {
+		return player2;
+	}
+	return null;
+}
+
+
+private Card getSecondHighCard(IPlayer player, Card card) {
+	if (player.getCards()[0].equals(card)) {
+		return player.getCards()[1];
+	}
+	return player.getCards()[0];
+}
+
+
+private Integer sumRankingList(IPlayer player) {
+	Integer sum = 0;
+	for (Card card : player.getRankingList()) {
+		sum += card.getRankToInt();
+	}
+	return sum;
+}
+
+private void checkPlayersRanking() {
+	for (IPlayer player : playersInHand) {
+		RankingUtil.checkRanking(player, tableCards);
+	}
+}	
+/************************************************* Remover Jogadores *************************************************/
+public void removePlayerTable(IPlayer player) {
+	//remover o player da mesa
+	playersInTable.remove(player);
+}
+
+public void removePlayerHand(IPlayer player) {
+	//remover o player da mesa
+	playersInHand.remove(player);
+}
+public void removerAgenteHand(String nomeAgente) {
+    
+    for(IPlayer a :this.playersInHand) {
+    
+        if(a.getNome().equalsIgnoreCase(nomeAgente)) { 
+            this.playersInHand.remove(a);
+            return;
+        }
+    }
+}
+    public void removeAgenteTable(String player) {
+	//remover o player da mesa
+                 for(IPlayer a :this.playersInTable) {
+            
+                if(a.getNome().equalsIgnoreCase(player)) { 
+                    this.playersInTable.remove(a);
+                    return;
+                }
+            }
+                
+	
+}
+
+}
+
 /**        
 			
 			List<IPlayer> win = getWinner();
