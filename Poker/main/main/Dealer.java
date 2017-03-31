@@ -24,7 +24,7 @@ public class Dealer  extends Agent{
     private List<Player> playersInHand;
     //rondas
     private List<Card> tableCards;
-    private int toCall,pot;
+    private int toCall,pot,round;
     private boolean raised,hand;
     private Map<String,Integer> dinheiroApostado;
 
@@ -97,18 +97,20 @@ private class WorkWork extends SimpleBehaviour{
 		public void action(){
         	if(!hand){
         	hand = true;
+        	round = 0;
             SequentialBehaviour seq = new SequentialBehaviour();
             seq.addSubBehaviour(new NewHand());
-            seq.addSubBehaviour(new AskTable(0));
-          //  seq.addSubBehaviour(new Flop());
-          //  seq.addSubBehaviour(new AskTable(0));
-          //  seq.addSubBehaviour(new Turn());
-          //  seq.addSubBehaviour(new AskTable(0));
-           // seq.addSubBehaviour(new River());
-           // seq.addSubBehaviour(new AskTable(0));
-           // seq.addSubBehaviour(new Winner());
+            seq.addSubBehaviour(new AsTableControl(0));
+            seq.addSubBehaviour(new Flop());
+            seq.addSubBehaviour(new AsTableControl(1));
+            seq.addSubBehaviour(new Turn());
+            seq.addSubBehaviour(new AsTableControl(2));
+            seq.addSubBehaviour(new River());
+            seq.addSubBehaviour(new AsTableControl(3));
+            seq.addSubBehaviour(new Winner());
             seq.addSubBehaviour(new Clean());
             addBehaviour(seq);
+            finished = true;
         	}
         }
 
@@ -218,6 +220,29 @@ private class Clean extends OneShotBehaviour{
 
 }
 	/************************************************* Perguntar *************************************************/
+public class AsTableControl extends SimpleBehaviour{
+	private boolean finished = false,worked = false;
+	
+	private int rounI ;
+	 public AsTableControl(int i) {
+		rounI  = i;
+	}
+	 @Override
+		public void action(){
+		 if(rounI == round & ! worked){
+			 addBehaviour(new AskTable(0));
+			 rounI++;
+			 worked = true;
+		 }else if(rounI == round && worked){
+			 finished = true;
+		 }
+	 }
+	 @Override
+     public boolean done(){
+		 
+         return finished;
+     }
+}
 public class AskTable extends OneShotBehaviour{
 	
 	
@@ -240,7 +265,7 @@ public class AskTable extends OneShotBehaviour{
 	seq.addSubBehaviour(new PerguntaAgenteJoga(p.getNome(),toCall));
 	seq.addSubBehaviour(new RespostasPlayer(indexActual));
 	addBehaviour(seq);
-		 }
+		 }else round ++;
 	
 				}
 				
@@ -254,6 +279,7 @@ private class RespostasPlayer extends OneShotBehaviour{
 
 	
 	private int indexActual;
+	private boolean received = false;
 	
 	public RespostasPlayer( int index){
 	
@@ -265,7 +291,7 @@ private class RespostasPlayer extends OneShotBehaviour{
 				public void action(){
 				ACLMessage msg = receive();
 					if(msg != null){
-
+							received  = true;
 						try{
 								
 						if(msg.getOntology().equals(Ontologias.RAISE)){
