@@ -10,6 +10,7 @@ import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
+import jade.domain.introspection.AddedBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import java.io.IOException;
@@ -149,11 +150,12 @@ private class SendMessageEntrance extends OneShotBehaviour{
 			
   
 	/************************************************* Comunicar Mao *************************************************/
-//to:do - completar if que faltam
+//to:do -matar agente?
 
 		private class PlayGame extends SimpleBehaviour{
 			private boolean finished = false;
 			
+			@SuppressWarnings("unchecked")
 			@Override
 				public void action(){
 				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CONFIRM);
@@ -164,32 +166,35 @@ private class SendMessageEntrance extends OneShotBehaviour{
 
 						if(msg.getOntology().equals(Ontologias.PERGUNTAR)){
 					 		int quantia = (int)msg.getContentObject();
+					 		bet = quantia;
 							addBehaviour(new RespondeDealer(quantia));
-							round++;
+							
 						}else if(msg.getOntology().equals(Ontologias.FLOP)){
-							tableCards =(List<Card>) msg.getContentObject(); 
+							tableCards =(List<Card>) msg.getContentObject();
+							round++;
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
 							Card cturn = (Card)msg.getContentObject();
 							tableCards.add(cturn);
-
+							round++;
 						}else if (msg.getOntology().equals(Ontologias.RIVER)){
 							Card criver = (Card)msg.getContentObject();
 							tableCards.add(criver);
-
+							round++;
 						}else if (msg.getOntology().equals(Ontologias.POT)){
-							
+							pot = (int)msg.getContentObject();
 						}else if (msg.getOntology().equals(Ontologias.DESISTIRAM)){
-							
+							folded = (int)msg.getContentObject();
 						}else if(msg.getOntology().equals(Ontologias.LOSS)){
 							if(dinheiro == 0){ 
-								//add pedir para sair 
+								addBehaviour(new sendMessageOfShame());
+								//matar agente?
 							}
 							finished = true;
 						}else if(msg.getOntology().equals(Ontologias.WIN)){
 							double quantia = Double.valueOf(msg.getContent());
 							dinheiro += quantia;
 /************************************** */
-System.out.println("Ganhei:: "+getLocalName());
+System.out.println("Ganhei:: "+quantia+" "+getLocalName());
 /********************************************** */
 							finished = true;
 						}
@@ -257,7 +262,11 @@ System.out.println("Ganhei:: "+getLocalName());
 					msg.setOntology(Ontologias.JOGA);
 					
 					
-						msg.setContent(quantia+"");
+						try {
+							msg.setContentObject(quantia);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
 						dinheiro-=quantia;
 					
 					msg.addReceiver(receiver);
@@ -282,8 +291,12 @@ System.out.println("Ganhei:: "+getLocalName());
 					msg.setOntology(Ontologias.RAISE);
 					
 					
-						msg.setContent(quantia+"");
-						dinheiro-=quantia;
+						try {
+							msg.setContentObject(quantia);
+						} catch (IOException e) {
+							e.printStackTrace();
+						}
+						dinheiro-=(quantia+bet);
 					
 					msg.addReceiver(receiver);
 					myAgent.send(msg);
@@ -311,6 +324,24 @@ System.out.println("Ganhei:: "+getLocalName());
 				}
 			
 				}	
+			
 
+			private class sendMessageOfShame extends OneShotBehaviour{
+			
+			
+				@Override 
+				public void action(){
+					AID receiver = new AID();
+					receiver.setLocalName("Dealer");
+					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+					msg.setOntology(Ontologias.NAODINHEIRO);
+					
+					msg.addReceiver(receiver);
+					myAgent.send(msg);
+					
+					
+				}
+			
+				}	
 
 }
