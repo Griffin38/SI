@@ -74,7 +74,7 @@ protected void setup(){
 		
 	} 
 	/************************************************* Requests *************************************************/
-	//to:do - completar as respostas das 2 fnçoes
+	
 
 	private class ReceiveRequestDesistiram  extends  CyclicBehaviour {
 		
@@ -89,7 +89,7 @@ protected void setup(){
 			if(msg != null){
 				
 				try {
-                    //mandar numero a player                   
+					 addBehaviour(new sendMessageDesistiram(msg.getSender()));                
 					
 					} catch (Exception e) {
 					System.out.println(e.getMessage());
@@ -114,7 +114,36 @@ protected void setup(){
 			if(msg != null){
 				
 				try {
-                    //mandar pot a player                   
+					
+                   addBehaviour(new sendMessagePot(msg.getSender()));                  
+					
+					} catch (Exception e) {
+					System.out.println(e.getMessage());
+				}
+				
+			}else
+			block();
+			
+		}
+		
+	}
+	
+	private class ReceiveMessageOfShame  extends  CyclicBehaviour {
+		
+		@Override
+		public void action() {
+			
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.NAODINHEIRO);
+			MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
+			ACLMessage msg = receive(mtEntrada);
+			
+			if(msg != null){
+				
+				try {
+					String[] parts = msg.getSender().toString().split("@");
+					String[] parts2 = parts[0].split("\"");
+					removeAgenteTable(parts2[1]);         
 					
 					} catch (Exception e) {
 					System.out.println(e.getMessage());
@@ -127,7 +156,7 @@ protected void setup(){
 		
 	}
 	/************************************************* DEAL BEHAVIOUR *************************************************/
-	//to:do - work work so da 1 mao 
+	 
 
 	private class DealJob extends CyclicBehaviour{		 
 
@@ -180,7 +209,7 @@ private class WorkWork extends SimpleBehaviour{
             seq.addSubBehaviour(new Clean());
             
             addBehaviour(seq);
-            finished = true;
+            
       	}
         }
 
@@ -200,7 +229,7 @@ private class WorkWork extends SimpleBehaviour{
 
 
 	/************************************************* DEAL SUB BEHAVIOURS *************************************************/
-//to:do - win nao manda as loss - clean nao esta comleto
+//to:do - win nao manda as loss -
 
 private class NewHand extends OneShotBehaviour{
 
@@ -282,7 +311,7 @@ private class River extends OneShotBehaviour{
 			tableCards.add(c);
 			checkPlayersRanking();
 			/************************************** */
-			System.out.println("TURN:: "+c.toString());
+			System.out.println("RIVER:: "+c.toString());
 			/********************************************** */
 			for (IPlayer player : playersInHand) {
 			addBehaviour(new sendMessageRiver(c,player.getNome()));
@@ -325,7 +354,11 @@ private class Clean extends OneShotBehaviour{
 
         @Override
 		public void action(){
+    		
 		   hand = false; 
+		   /************************************** */
+			System.out.println("CLEAN Hand:: "+ hand);
+			/********************************************** */
         }
 
 }
@@ -370,7 +403,7 @@ public class AskTable extends OneShotBehaviour{
 	public void action(){
 	
 		 if(indexActual < playersInHand.size()){
-	//Collections.rotate(numbers, numbers.size() -5);
+	
 	Player p = (Player)playersInHand.get(indexActual);
 	SequentialBehaviour seq = new SequentialBehaviour();
 	seq.addSubBehaviour(new PerguntaAgenteJoga(p.getNome(),toCall));
@@ -407,14 +440,32 @@ private class RespostasPlayer extends SimpleBehaviour{
 						try{
 								
 						if(msg.getOntology().equals(Ontologias.RAISE)){
+							received = true;
 					 		raised = true;
+					 		int x =(int) msg.getContentObject();
+					 		toCall+=x;
+					 		pot+=x;
+							/************************************** */
+							System.out.println("Raise "+x+" " + msg.getSender());
+						/********************************************** */	
 					 		
 						}else if(msg.getOntology().equals(Ontologias.JOGA)){
 						received = true;
-							/************************************** */
-							System.out.println("Joga " + msg.getSender());
-						/********************************************** */						
+						double y = (double)msg.getContentObject();
+						pot+=y;
+						/************************************** */
+						System.out.println("Joga "+y+" " + msg.getSender());
+					/********************************************** */	
+				 						
 						}else if(msg.getOntology().equals(Ontologias.FOLD)){
+							received = true;
+						folded++;
+						/************************************** */
+						System.out.println("Fold " + msg.getSender());
+					/********************************************** */
+						String[] parts = msg.getSender().toString().split("@");
+						String[] parts2 = parts[0].split("\"");
+						removerAgenteHand(parts2[1]);
 						
 						}
 							} catch (Exception e) {
@@ -559,7 +610,7 @@ receiverN = playername;
 		try {
 			msg.setContentObject(mesa);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+	
 			e.printStackTrace();
 		}
 		msg.addReceiver(receiver);
@@ -590,7 +641,7 @@ receiverN = playername;
 		try {
 			msg.setContentObject(mesa);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+	
 			e.printStackTrace();
 		}
 		msg.addReceiver(receiver);
@@ -619,7 +670,7 @@ receiverN = playername;
 		try {
 			msg.setContentObject(premio);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		msg.addReceiver(receiver);
@@ -652,6 +703,57 @@ receiverN = playername;
 
 	}	
 
+/********************************************   POT E NR DE FOLDS************************************************/
+private class sendMessageDesistiram extends OneShotBehaviour{
+	AID receiverN;
+ public sendMessageDesistiram(AID playername)  {
+
+receiverN = playername;
+}
+
+	@Override 
+	public void action(){
+		AID receiver = new AID();
+		receiver = receiverN;
+		ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
+		msg.setOntology(Ontologias.DESISTIRAM);
+		try {
+			msg.setContentObject(folded);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		msg.addReceiver(receiver);
+		myAgent.send(msg);
+		
+		
+	}
+
+	}
+private class sendMessagePot extends OneShotBehaviour{
+	AID receiverN;
+ public sendMessagePot(AID playername)  {
+
+receiverN = playername;
+}
+
+	@Override 
+	public void action(){
+		AID receiver = new AID();
+		receiver = receiverN;
+		ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
+		msg.setOntology(Ontologias.POT);
+		try {
+			msg.setContentObject(pot);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		msg.addReceiver(receiver);
+		myAgent.send(msg);
+		
+		
+	}
+
+	}
 private class PerguntaAgenteJoga extends OneShotBehaviour {
        private String nomeA;
        int dinheiroApostar;
@@ -674,7 +776,7 @@ private class PerguntaAgenteJoga extends OneShotBehaviour {
             try {
 				msg.setContentObject(dinheiroApostar);
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				
 				e.printStackTrace();
 			}
             msg.addReceiver(receiver);

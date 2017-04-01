@@ -30,8 +30,8 @@ public class Ontologias {
     
     public static final String DESISTIRAM = "DESISTIRAM";
     public static final String POT = "Pot";
-    
     public static final String NAODINHEIRO="NaoDinheiro";
+    
     public static final String DADINHEIRO="DaDinheiro";
     public static final String JOGADOR = "JOGADOR";
     public static final String LISTAJOGADORES = "LISTAJOGADOREES";
