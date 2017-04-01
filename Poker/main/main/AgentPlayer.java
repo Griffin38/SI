@@ -20,9 +20,10 @@ import java.util.List;
 public class AgentPlayer extends Agent {
 
         // propriedades AgentPlayer
-        private int dinheiro, myRank,round,bet,pot,toRaise,folded,npTable;
+        private int  myRank,folded,round,npTable;
         private Player jogador;
         private List<Card> tableCards;
+        private double dinheiro,pot,toRaise,bet;
     
     @Override
     protected void setup() {
@@ -32,6 +33,8 @@ public class AgentPlayer extends Agent {
     jogador = new Player(getLocalName());
 
     this.addBehaviour(new SendMessageEntrance() );
+    this.addBehaviour(new  ReceiveBehaviourJogador());
+    
 
     }
 
@@ -70,20 +73,20 @@ private class SendMessageEntrance extends OneShotBehaviour{
 				MessageTemplate mtJ = MessageTemplate.MatchOntology(Ontologias.NOVAMAO);
 				MessageTemplate mtResp = MessageTemplate.and(mt, mtJ);
 				ACLMessage msg = receive(mtResp);
-				
+				 
 				if(msg != null){
 					
 					try {
+                                           
 						tableCards = new ArrayList<>();
-						round = bet= pot = toRaise = 0;
+                                                round=0;
+						  bet= pot = toRaise = 0;
 						npTable = (int) msg.getContentObject();
 /************************************** */
-System.out.println("nova mao: "+ npTable + " Nome: "+getLocalName());
+        System.out.println("nova mao: "+ npTable + " Nome: "+getLocalName());
 /********************************************** */
-						SequentialBehaviour seq = new SequentialBehaviour();
-						seq.addSubBehaviour(new NewCards());
-						seq.addSubBehaviour(new PlayGame());
-						addBehaviour(seq);
+						
+						addBehaviour(new NewCards());
 																				
 						 											
 																				
@@ -101,10 +104,11 @@ System.out.println("nova mao: "+ npTable + " Nome: "+getLocalName());
 			}
 			
 			
-	private class NewCards extends OneShotBehaviour{
+	private class NewCards extends SimpleBehaviour {
+		private boolean finished = false;
 		@Override
 			public void action(){
-				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.AGREE);
 				MessageTemplate mtJ = MessageTemplate.MatchOntology(Ontologias.CARTAS);
 				MessageTemplate mtResp = MessageTemplate.and(mt, mtJ);
 				ACLMessage msg = receive(mtResp);
@@ -116,15 +120,16 @@ System.out.println("nova mao: "+ npTable + " Nome: "+getLocalName());
 						List<Card> mao =(List<Card>) msg.getContentObject();
 						int i = 0;
 						for(Card a : mao){
-/************************************** */
-System.out.println("nova Carta: "+ a.toString() + " Nome: "+getLocalName());
-/********************************************** */
+
 							cards[i] = a ;
 							i++;
+							
+							
 						}
 						//tira as cards do content
 						jogador.setCards(cards);
-																				
+						addBehaviour(new PlayGame());
+						finished = true;														
 																					
 																				
 
@@ -135,20 +140,26 @@ System.out.println("nova Carta: "+ a.toString() + " Nome: "+getLocalName());
 				}else
 				block();
 		}
-
+		@Override
+		public boolean done() {
+			
+			return finished;
+		}
 	}
 			
   
 	/************************************************* Comunicar Mao *************************************************/
+//to:do - completar if que faltam
+
 		private class PlayGame extends SimpleBehaviour{
 			private boolean finished = false;
 			
 			@Override
 				public void action(){
-				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CONFIRM);
 					ACLMessage msg = receive(mt);
 					if(msg != null){
-
+                                            
 						try{
 
 						if(msg.getOntology().equals(Ontologias.PERGUNTAR)){
@@ -157,21 +168,14 @@ System.out.println("nova Carta: "+ a.toString() + " Nome: "+getLocalName());
 							round++;
 						}else if(msg.getOntology().equals(Ontologias.FLOP)){
 							tableCards =(List<Card>) msg.getContentObject(); 
-/************************************** */
-System.out.println("Flop: "+ tableCards.toString() + " Nome: "+getLocalName());
-/********************************************** */
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
 							Card cturn = (Card)msg.getContentObject();
 							tableCards.add(cturn);
-/************************************** */
-System.out.println("Turn: "+ tableCards.toString() + " Nome: "+getLocalName());
-/********************************************** */
+
 						}else if (msg.getOntology().equals(Ontologias.RIVER)){
 							Card criver = (Card)msg.getContentObject();
 							tableCards.add(criver);
-/************************************** */
-System.out.println("River: "+ tableCards.toString() + " Nome: "+getLocalName());
-/********************************************** */
+
 						}else if (msg.getOntology().equals(Ontologias.POT)){
 							
 						}else if (msg.getOntology().equals(Ontologias.DESISTIRAM)){
@@ -182,8 +186,11 @@ System.out.println("River: "+ tableCards.toString() + " Nome: "+getLocalName());
 							}
 							finished = true;
 						}else if(msg.getOntology().equals(Ontologias.WIN)){
-							int quantia = (int)msg.getContentObject();
+							double quantia = Double.valueOf(msg.getContent());
 							dinheiro += quantia;
+/************************************** */
+System.out.println("Ganhei:: "+getLocalName());
+/********************************************** */
 							finished = true;
 						}
 					
@@ -204,6 +211,8 @@ System.out.println("River: "+ tableCards.toString() + " Nome: "+getLocalName());
 		}
 		
 		/*************************************************Decidir  Resposta *************************************************/
+		//to:do - responder confrme a ronda , o nr de agentes fold e o rank das cartas
+		
 		private class RespondeDealer extends OneShotBehaviour{
 			private int quantia;
 			 public RespondeDealer(int q) {
@@ -236,8 +245,8 @@ System.out.println("River: "+ tableCards.toString() + " Nome: "+getLocalName());
 		/************************************************* Respostas *************************************************/			
 
 		private class sendMessageCall extends OneShotBehaviour{
-			private int quantia;
-			 public sendMessageCall(int q) {
+			private double quantia;
+			 public sendMessageCall(double q) {
 			quantia = q;
 			}
 				@Override 
@@ -247,13 +256,10 @@ System.out.println("River: "+ tableCards.toString() + " Nome: "+getLocalName());
 					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 					msg.setOntology(Ontologias.JOGA);
 					
-					try {
-						msg.setContentObject(quantia);
+					
+						msg.setContent(quantia+"");
 						dinheiro-=quantia;
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					
 					msg.addReceiver(receiver);
 					myAgent.send(msg);
 					
@@ -275,13 +281,10 @@ System.out.println("River: "+ tableCards.toString() + " Nome: "+getLocalName());
 					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
 					msg.setOntology(Ontologias.RAISE);
 					
-					try {
-						msg.setContentObject(quantia);
+					
+						msg.setContent(quantia+"");
 						dinheiro-=quantia;
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
+					
 					msg.addReceiver(receiver);
 					myAgent.send(msg);
 					
