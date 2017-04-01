@@ -74,6 +74,8 @@ protected void setup(){
 		
 	} 
 	/************************************************* Requests *************************************************/
+	//to:do - completar as respostas das 2 fnçoes
+
 	private class ReceiveRequestDesistiram  extends  CyclicBehaviour {
 		
 		@Override
@@ -125,7 +127,7 @@ protected void setup(){
 		
 	}
 	/************************************************* DEAL BEHAVIOUR *************************************************/
-	
+	//to:do - work work so da 1 mao 
 
 	private class DealJob extends CyclicBehaviour{		 
 
@@ -187,10 +189,19 @@ private class WorkWork extends SimpleBehaviour{
             if(playersInTable.size() == 1 && !hand) finished = true;
             return finished;
         }
+        @Override
+		public int onEnd(){
+        	/************************************** */
+			System.out.println("GRANDE VENCEDOR:: "+ playersInTable.get(0).getNome());
+			/********************************************** */
+			return 1;
+		}
 }
 
 
 	/************************************************* DEAL SUB BEHAVIOURS *************************************************/
+//to:do - win nao manda as loss - clean nao esta comleto
+
 private class NewHand extends OneShotBehaviour{
 
         @Override
@@ -819,12 +830,3 @@ public void removerAgenteHand(String nomeAgente) {
 
 }
 
-/**        
-			
-			List<IPlayer> win = getWinner();
-			//dar o pot ao vencedor 
-			//ver se alguem sai da mesa
-			
-            
-            
-             */

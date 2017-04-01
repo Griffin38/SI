@@ -149,6 +149,8 @@ private class SendMessageEntrance extends OneShotBehaviour{
 			
   
 	/************************************************* Comunicar Mao *************************************************/
+//to:do - completar if que faltam
+
 		private class PlayGame extends SimpleBehaviour{
 			private boolean finished = false;
 			
@@ -209,6 +211,8 @@ System.out.println("Ganhei:: "+getLocalName());
 		}
 		
 		/*************************************************Decidir  Resposta *************************************************/
+		//to:do - responder confrme a ronda , o nr de agentes fold e o rank das cartas
+		
 		private class RespondeDealer extends OneShotBehaviour{
 			private int quantia;
 			 public RespondeDealer(int q) {
