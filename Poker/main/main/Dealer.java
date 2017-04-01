@@ -232,6 +232,9 @@ private class Flop extends OneShotBehaviour{
 			Card card3 = baralho.pop();
 			tableCards.add(card3);
 			checkPlayersRanking();
+			/************************************** */
+			System.out.println("FLOP:: "+tableCards.toString());
+			/********************************************** */
 			for (IPlayer player : playersInHand) {
 				addBehaviour(new sendMessageFlop(tableCards,player.getNome()));
 			}
@@ -248,6 +251,9 @@ private class Turn extends OneShotBehaviour{
 			Card c = baralho.pop();
 			tableCards.add(c);
 			checkPlayersRanking();
+			/************************************** */
+			System.out.println("TURN:: "+c.toString());
+			/********************************************** */
 			for (IPlayer player : playersInHand) {
 			addBehaviour(new sendMessageTurn(c,player.getNome()));
 			}
@@ -264,6 +270,9 @@ private class River extends OneShotBehaviour{
 			Card c = baralho.pop();
 			tableCards.add(c);
 			checkPlayersRanking();
+			/************************************** */
+			System.out.println("TURN:: "+c.toString());
+			/********************************************** */
 			for (IPlayer player : playersInHand) {
 			addBehaviour(new sendMessageRiver(c,player.getNome()));
 			}
@@ -284,11 +293,8 @@ private class Winner extends OneShotBehaviour{
                 AID receiver = new AID();
 		receiver.setLocalName(win.get(i).getNome());
 		ACLMessage msg = new ACLMessage(ACLMessage.CONFIRM);
-		msg.setOntology(Ontologias.WIN);
-                
-              
-			msg.setContent((pot/win.size())+"");
-		
+		msg.setOntology(Ontologias.WIN); 
+		msg.setContent((pot/win.size())+"");
 		msg.addReceiver(receiver);
 		myAgent.send(msg);
 		
@@ -369,7 +375,7 @@ public class AskTable extends OneShotBehaviour{
 
 /************************************************* Resolver Respostas *************************************************/
 
-private class RespostasPlayer extends OneShotBehaviour{
+private class RespostasPlayer extends SimpleBehaviour{
 
 	
 	private int indexActual;
@@ -391,9 +397,12 @@ private class RespostasPlayer extends OneShotBehaviour{
 								
 						if(msg.getOntology().equals(Ontologias.RAISE)){
 					 		raised = true;
+					 		
 						}else if(msg.getOntology().equals(Ontologias.JOGA)){
-						System.out.println("Jogando");
-						
+						received = true;
+							/************************************** */
+							System.out.println("Joga " + msg.getSender());
+						/********************************************** */						
 						}else if(msg.getOntology().equals(Ontologias.FOLD)){
 						
 						}
@@ -420,7 +429,11 @@ private class RespostasPlayer extends OneShotBehaviour{
 						}
 						return 1;
 					}
-
+	 			@Override
+				public boolean done() {
+					
+					return received;
+				}
 }
 
 
@@ -458,8 +471,12 @@ private class sendMessageCartas extends OneShotBehaviour{
 List<Card> mao;
 String receiverN;
  public sendMessageCartas(List<Card> car,String playername)  {
+	 
 mao = car;
 receiverN = playername;
+/************************************** */
+System.out.println("Cartas:: "+mao.toString()+ " para "+ playername);
+/********************************************** */
 }
 	@Override 
 	public void action(){
@@ -486,8 +503,10 @@ private class sendMessageFlop extends OneShotBehaviour{
 List<Card> mesa;
 String receiverN;
  public sendMessageFlop(List<Card> car,String playername)  {
+	
 mesa = car;
 receiverN = playername;
+
 }
 	@Override 
 	public void action(){
@@ -514,8 +533,10 @@ private class sendMessageTurn extends OneShotBehaviour{
 Card mesa;
 String receiverN;
  public sendMessageTurn(Card car,String playername)  {
+
 mesa = car;
 receiverN = playername;
+
 }
 	@Override 
 	public void action(){
@@ -543,8 +564,10 @@ private class sendMessageRiver extends OneShotBehaviour{
 Card mesa;
 String receiverN;
  public sendMessageRiver(Card car,String playername)  {
+	
 mesa = car;
 receiverN = playername;
+
 }
 	@Override 
 	public void action(){
@@ -619,7 +642,7 @@ receiverN = playername;
 	}	
 
 private class PerguntaAgenteJoga extends OneShotBehaviour {
-       String nomeA;
+       private String nomeA;
        int dinheiroApostar;
     
       
@@ -644,6 +667,9 @@ private class PerguntaAgenteJoga extends OneShotBehaviour {
 				e.printStackTrace();
 			}
             msg.addReceiver(receiver);
+        	/************************************** */
+			System.out.println("A perguntar  " +nomeA);
+		/********************************************** */	
             myAgent.send(msg);
          
         }

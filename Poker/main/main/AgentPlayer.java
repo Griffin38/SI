@@ -34,7 +34,7 @@ public class AgentPlayer extends Agent {
 
     this.addBehaviour(new SendMessageEntrance() );
     this.addBehaviour(new  ReceiveBehaviourJogador());
-    this.addBehaviour(new PlayGame());
+    
 
     }
 
@@ -85,10 +85,8 @@ private class SendMessageEntrance extends OneShotBehaviour{
 /************************************** */
         System.out.println("nova mao: "+ npTable + " Nome: "+getLocalName());
 /********************************************** */
-						SequentialBehaviour seq = new SequentialBehaviour();
-						seq.addSubBehaviour(new NewCards());
-						seq.addSubBehaviour(new PlayGame());
-						addBehaviour(seq);
+						
+						addBehaviour(new NewCards());
 																				
 						 											
 																				
@@ -106,7 +104,8 @@ private class SendMessageEntrance extends OneShotBehaviour{
 			}
 			
 			
-	private class NewCards extends CyclicBehaviour {
+	private class NewCards extends SimpleBehaviour {
+		private boolean finished = false;
 		@Override
 			public void action(){
 				MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.AGREE);
@@ -121,15 +120,16 @@ private class SendMessageEntrance extends OneShotBehaviour{
 						List<Card> mao =(List<Card>) msg.getContentObject();
 						int i = 0;
 						for(Card a : mao){
-/************************************** */
-System.out.println("nova Carta: "+ a.toString() + " Nome: "+getLocalName());
-/********************************************** */
+
 							cards[i] = a ;
 							i++;
+							
+							
 						}
 						//tira as cards do content
 						jogador.setCards(cards);
-																				
+						addBehaviour(new PlayGame());
+						finished = true;														
 																					
 																				
 
@@ -140,7 +140,11 @@ System.out.println("nova Carta: "+ a.toString() + " Nome: "+getLocalName());
 				}else
 				block();
 		}
-
+		@Override
+		public boolean done() {
+			
+			return finished;
+		}
 	}
 			
   
@@ -162,21 +166,14 @@ System.out.println("nova Carta: "+ a.toString() + " Nome: "+getLocalName());
 							round++;
 						}else if(msg.getOntology().equals(Ontologias.FLOP)){
 							tableCards =(List<Card>) msg.getContentObject(); 
-/************************************** */
-System.out.println("Flop: "+ tableCards.toString() + " Nome: "+getLocalName());
-/********************************************** */
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
 							Card cturn = (Card)msg.getContentObject();
 							tableCards.add(cturn);
-/************************************** */
-System.out.println("Turn: "+ tableCards.toString() + " Nome: "+getLocalName());
-/********************************************** */
+
 						}else if (msg.getOntology().equals(Ontologias.RIVER)){
 							Card criver = (Card)msg.getContentObject();
 							tableCards.add(criver);
-/************************************** */
-System.out.println("River: "+ tableCards.toString() + " Nome: "+getLocalName());
-/********************************************** */
+
 						}else if (msg.getOntology().equals(Ontologias.POT)){
 							
 						}else if (msg.getOntology().equals(Ontologias.DESISTIRAM)){
@@ -189,7 +186,9 @@ System.out.println("River: "+ tableCards.toString() + " Nome: "+getLocalName());
 						}else if(msg.getOntology().equals(Ontologias.WIN)){
 							double quantia = Double.valueOf(msg.getContent());
 							dinheiro += quantia;
-                                                        System.out.println(getLocalName());
+/************************************** */
+System.out.println("Ganhei:: "+getLocalName());
+/********************************************** */
 							finished = true;
 						}
 					
