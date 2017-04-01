@@ -14,9 +14,8 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import java.io.Serializable;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Map.*;
+
 
 
 public class Dealer  extends Agent{
@@ -39,6 +38,9 @@ protected void setup(){
     this.playersInTable=new ArrayList<>();
     this.addBehaviour(new ReceiveBehaviourJogadores());
     this.addBehaviour(new DealJob());
+    this.addBehaviour(new ReceiveRequestDesistiram());
+     this.addBehaviour(new ReceiveRequestPot());
+     this.addBehaviour(new ReceiveMessageOfShame());
 }
 
 
