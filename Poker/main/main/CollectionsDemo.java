@@ -16,7 +16,7 @@ public class CollectionsDemo {
    System.out.println("Before : "+Arrays.toString(numbers.toArray()));
       
    // rotate the list at distance 10
-   Collections.rotate(numbers, numbers.size() -5);
+   Collections.rotate(numbers, numbers.size() - 5);
 
    System.out.println("After : "+Arrays.toString(numbers.toArray()));
    }

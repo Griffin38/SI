@@ -495,9 +495,9 @@ private class RespostasPlayer extends SimpleBehaviour{
 	 			
 	 			@Override
 					public int onEnd(){
-						if(raised ){
+						if(raised && indexActual != 0 ){
 							 
-							Collections.rotate(playersInHand, playersInHand.size() -indexActual);
+							Collections.rotate(playersInHand, playersInHand.size() - indexActual);
 							raised = false;
 							addBehaviour(new AskTable(1));
 						}else {

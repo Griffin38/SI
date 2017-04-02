@@ -12,6 +12,7 @@ import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -19,10 +20,10 @@ import java.util.List;
 public class AgentPlayer extends Agent {
 
         // propriedades AgentPlayer
-        private int  myRank,folded,round,npTable;
+        private int  myRank,round,npTable,hasRaised;
         private Player jogador;
         private List<Card> tableCards;
-        private double dinheiro,pot,toRaise,bet;
+        private double dinheiro,pot,toRaise,bet,folded;
         private boolean estaEmJogo;
         private double dinheiroJogado;
     
@@ -118,6 +119,7 @@ private class SendMessageEntrance extends OneShotBehaviour{
 				if(msg != null){
 					
 					try {
+						hasRaised = 0;
 						Card[] cards = new Card[2];
 						List<Card> mao =(List<Card>) msg.getContentObject();
 						int i = 0;
@@ -173,20 +175,25 @@ private class SendMessageEntrance extends OneShotBehaviour{
 							addBehaviour(new RespondeDecide(quantia));
 							
 						}else if(msg.getOntology().equals(Ontologias.FLOP)){
+							hasRaised = 0;
 							tableCards =(List<Card>) msg.getContentObject();
 							round++;
 						}else if(msg.getOntology().equals(Ontologias.TURN)){
+							round++;
+							hasRaised = 0;
 							Card cturn = (Card)msg.getContentObject();
 							tableCards.add(cturn);
-							round++;
+							
 						}else if (msg.getOntology().equals(Ontologias.RIVER)){
+							hasRaised = 0;
+							round++;
 							Card criver = (Card)msg.getContentObject();
 							tableCards.add(criver);
-							round++;
+							toRaise =1 ;
 						}else if (msg.getOntology().equals(Ontologias.POT)){
-							pot = (int)msg.getContentObject();
+							pot = (double)msg.getContentObject();
 						}else if (msg.getOntology().equals(Ontologias.DESISTIRAM)){
-							folded = (int)msg.getContentObject();
+							folded = (double)msg.getContentObject();
 						}else if(msg.getOntology().equals(Ontologias.LOSS)){
 							if(dinheiro == 0){ 
 								addBehaviour(new sendMessageOfShame());
@@ -305,28 +312,28 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
               			break;
                		
                		
-               	case 1: if(toRaise == 1) addBehaviour(new sendMessageRaise((quantia/2)));
+               	case 1: if(toRaise == 1) {addBehaviour(new sendMessageRaise((quantia/2)));
+               		toRaise--;	
+               				}
                		else{
                			List<Card> highP = RankingUtil.getOnePair(jogador,
                           		tableCards);
                			int c = highP.get(0).getRankToInt();
-               			if(c >= 8) addBehaviour(new sendMessageRaise(quantia/2));
+               			if(c >= 8 && hasRaised == 0) {addBehaviour(new sendMessageRaise(quantia/2));hasRaised++;}
                			else addBehaviour(new sendMessageCall(quantia));
                				
                			}
                			break;			
-               	case 2:  addBehaviour(new sendMessageRaise(quantia/2));
-               				toRaise = 1;
+               	case 2:  if(hasRaised == 0){addBehaviour(new sendMessageRaise(quantia/2)); hasRaised++; toRaise = 1;}
+               				
                			break;
-               	case 3:  addBehaviour(new sendMessageRaise(quantia/2));
-   						toRaise = 1;
+               	case 3: 
+               	 if(hasRaised == 0){addBehaviour(new sendMessageRaise(quantia/2)); hasRaised++; toRaise = 1;}
                			break;
-               	case 4:  addBehaviour(new sendMessageRaise(quantia/2));
-   						toRaise = 2;
+               	case 4:   if(hasRaised == 0){addBehaviour(new sendMessageRaise(quantia/2)); hasRaised++; toRaise = 2;}
                			break;
                			
-               	default:  addBehaviour(new sendMessageRaise(quantia/2));
-   							toRaise = 3; 
+               	default:   if(hasRaised == 0){addBehaviour(new sendMessageRaise(quantia/2)); hasRaised++; toRaise = 3;}
                			break;
               
 
@@ -336,24 +343,32 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
                 RankingUtil.checkRanking(jogador, tableCards);
                 myRank = RankingUtil.getRankingToInt(jogador);
                 switch(myRank){
-              	case 0:  addBehaviour(new sendMessageFold());
+              	case 0:  if(folded > (npTable -1))addBehaviour(new sendMessageFold());
+      			else addBehaviour(new sendMessageCall(quantia));
               			break;
               	case 1: addBehaviour(new sendMessageCall(quantia));
               			break;			
-              	case 2: addBehaviour(new sendMessageCall(quantia));
+              	case 2:if(toRaise == 1){
+              		addBehaviour(new sendMessageRaise(quantia/2));
+              		toRaise--;
+              	}else addBehaviour(new sendMessageCall(quantia));
               			break;
               	case 3: if(toRaise == 1){
               		addBehaviour(new sendMessageRaise(quantia/2));
+              		toRaise--;
               	}
               	else addBehaviour(new sendMessageCall(quantia));
 
               	default:  
               		 if(toRaise == 3){
               			addBehaviour(new sendMessageRaise(quantia));
+              			toRaise=1;
               		 }else if(toRaise == 2){
               			addBehaviour(new sendMessageRaise(quantia - (quantia/3)));
+              			toRaise = 0;
               		 }else if(toRaise == 1){
               			addBehaviour(new sendMessageRaise(quantia/2));
+              			toRaise--;
               		 }else addBehaviour(new sendMessageCall(quantia));
               			break;
              
@@ -363,23 +378,29 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
             case 3:
                 RankingUtil.checkRanking(jogador, tableCards);
                 myRank = RankingUtil.getRankingToInt(jogador);
+                
                 switch(myRank){
 
               	case 1: Card highCardPair = RankingUtil.getHighCard(jogador,
               			Collections.EMPTY_LIST);
               			int cRankPair = highCardPair.getRank().ordinal();
-              			if(cRankPair >= 7) addBehaviour(new sendMessageRaise(quantia));
+              			if(cRankPair >= 7 && hasRaised == 0) {addBehaviour(new sendMessageRaise(quantia)); hasRaised++;}
               			else addBehaviour(new sendMessageCall(quantia));
               			break;			
-              	case 2:  addBehaviour(new sendMessageRaise(quantia-(quantia/4)));
+              	case 2: if(toRaise == 1){ addBehaviour(new sendMessageRaise(quantia-(quantia/4))); toRaise--;}
+              	else addBehaviour(new sendMessageCall(quantia));
               			break;
-              	case 3: addBehaviour(new sendMessageRaise(quantia-(quantia/3)));
+              	case 3: if(toRaise == 1){ addBehaviour(new sendMessageRaise(quantia-(quantia/3))); toRaise--;}
+             	else addBehaviour(new sendMessageCall(quantia));
               			break;
-              	case 4: addBehaviour(new sendMessageRaise(quantia));
+              	case 4:if(toRaise == 1){ addBehaviour(new sendMessageRaise(quantia)); toRaise--;}
+		 	else addBehaviour(new sendMessageCall(quantia));
               			break;
-              	case 5: addBehaviour(new sendMessageRaise(quantia + (quantia/4)));
+              	case 5: if(toRaise == 1){ addBehaviour(new sendMessageRaise(quantia + (quantia/4))); toRaise--;}
+                 	else addBehaviour(new sendMessageCall(quantia));
               			break;
-              	default:  addBehaviour(new sendMessageRaise(2*quantia));
+              	default: if(toRaise == 1){  addBehaviour(new sendMessageRaise(2*quantia)); toRaise--;}
+	 	else addBehaviour(new sendMessageCall(quantia));
               			break;
              
 
@@ -408,7 +429,7 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
 					
 					
 						try {
-							msg.setContentObject(quantia);
+							msg.setContentObject((Serializable)quantia);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
@@ -437,7 +458,7 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
 					
 					
 						try {
-							msg.setContentObject(quantia);
+							msg.setContentObject((Serializable)quantia);
 						} catch (IOException e) {
 							e.printStackTrace();
 						}
