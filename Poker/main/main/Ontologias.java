@@ -11,7 +11,7 @@ package main;
  */
 public class Ontologias {
     public final static String NOMEAGENTE ="agentNick ";
-    public static final int VALORAPOSTAR= 10;
+    public static final double VALORAPOSTAR= 10;
     public static final String COMECAR= "Comecar";
     public static final String NOVAMAO="NovaMao";
     public static final String CARTAS ="Cartas";

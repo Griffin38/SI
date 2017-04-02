@@ -7,6 +7,7 @@ import cartas.*;
 import jade.core.*;
 import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
+import jade.core.behaviours.SequentialBehaviour;
 import jade.core.behaviours.SimpleBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
@@ -21,6 +22,8 @@ public class AgentPlayer extends Agent {
         private Player jogador;
         private List<Card> tableCards;
         private double dinheiro,pot,toRaise,bet;
+        private boolean estaEmJogo;
+        private double dinheiroJogado;
     
     @Override
     protected void setup() {
@@ -28,7 +31,7 @@ public class AgentPlayer extends Agent {
     
     dinheiro=5000;
     jogador = new Player(getLocalName());
-
+    this.estaEmJogo=false;
     this.addBehaviour(new SendMessageEntrance() );
     this.addBehaviour(new  ReceiveBehaviourJogador());
     
@@ -74,10 +77,11 @@ private class SendMessageEntrance extends OneShotBehaviour{
 				if(msg != null){
 					
 					try {
-                                           
+                                                estaEmJogo=false;
 						tableCards = new ArrayList<>();
                                                 round=0;
 						  bet= pot = toRaise = 0;
+                                                  dinheiroJogado=0;
 						npTable = (int) msg.getContentObject();
 /************************************** */
         System.out.println("nova mao: "+ npTable + " Nome: "+getLocalName());
@@ -159,11 +163,16 @@ private class SendMessageEntrance extends OneShotBehaviour{
 					if(msg != null){
                                             
 						try{
+                                                    SequentialBehaviour seq = new SequentialBehaviour();
+                                                    addBehaviour(new sendPlayerFold());
+                                                    addBehaviour(new receveFold());
+                                                    addBehaviour(seq);
 
 						if(msg.getOntology().equals(Ontologias.PERGUNTAR)){
-					 		int quantia = (int)msg.getContentObject();
+					 		double quantia = (double)msg.getContentObject();
+      
 					 		bet = quantia;
-							addBehaviour(new RespondeDealer(quantia));
+							addBehaviour(new RespondeDecide(quantia));
 							
 						}else if(msg.getOntology().equals(Ontologias.FLOP)){
 							tableCards =(List<Card>) msg.getContentObject();
@@ -227,22 +236,222 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
 		}
 		
 		private class RespondeDecide extends OneShotBehaviour{
-			@Override
+		
+                    private double quantia;
+                
+                    public RespondeDecide(double q) {
+					quantia = q;
+					}	
+                    
+                    @Override
 			public void action(){
+                          System.out.println(folded);
+                           if(folded==1) {addBehaviour(new sendMessageCall(0));}
+                           else {  
 			switch (round) {
-            case 0:  //responder Incio
+            case 3:  
+                 RankingUtil.checkRanking(jogador, tableCards);
+                 int i = RankingUtil.getRankingToInt(jogador);
+                 
+                    if(estaEmJogo) {
+                        
+                        
+                        if(i>0) {
+                           double call = quantia-dinheiroJogado; 
+                            if(dinheiro>=call) {
+                                    
+                                    dinheiro=dinheiro-call;
+                                    addBehaviour(new sendMessageCall(call));
+                                    
+                                    }
+                            else {
+                                  double dinheiroK=dinheiro;
+                                   dinheiro=dinheiro-dinheiroK;
+                                 addBehaviour(new sendMessageCall(dinheiroK));
+                            }
+                            
+                        }
+                        else addBehaviour(new sendMessageFold());
+                     }
+                    
+                    else {
+                       estaEmJogo=true;
+                       
+                       if(quantia>Ontologias.VALORAPOSTAR) {
+                       
+                           if(i>0) {
+                                    if(dinheiro>=quantia) {
+                                    
+                                        dinheiro=dinheiro-quantia;
+                                        dinheiroJogado=quantia;
+                                    addBehaviour(new sendMessageCall(quantia));
+                                        
+                                    
+                                    }
+                                    else {
+                                        dinheiroJogado=dinheiro;
+                                        dinheiro=0;
+                                        
+                                    addBehaviour(new sendMessageCall(dinheiroJogado));
+                                        
+                                    }
+                               
+                               
+                           }
+                           else addBehaviour(new sendMessageFold());
+                           
+                       }
+                       
+                       else {
+                           if(i>0) {
+                                    double dinheiroK =quantia+ Ontologias.VALORAPOSTAR*0.5;
+                                    if(dinheiro>=dinheiroK) {
+                                      dinheiroJogado=dinheiroK;
+                                      dinheiro=dinheiro -dinheiroK;
+                                        addBehaviour(new sendMessageRaise(dinheiroK));
+                                        
+                                    }
+                                   
+                                    else {
+                                        if(dinheiro>Ontologias.VALORAPOSTAR) {
+                                        dinheiroJogado=dinheiro;
+                                        dinheiro=0;
+                                        addBehaviour(new sendMessageRaise(dinheiroJogado));
+                                        }
+                                        else {
+                                         dinheiroJogado=dinheiro;
+                                        dinheiro=0;
+                                        addBehaviour(new sendMessageCall(dinheiroJogado));
+                                            
+                                        }
+                                   
+                                    }
+                           }
+                           
+                           else {
+                                    double dinheiroK=Ontologias.VALORAPOSTAR;
+                                    dinheiroJogado=dinheiroK;
+                                    dinheiro=dinheiro-dinheiroK;
+                                    addBehaviour(new sendMessageCall(dinheiroK));
+                                    
+                                    
+                           
+                           }
+                       
+                       }
+                       
+                       
+                        
+                    
+                    }
+                
                      break;
-			case 1:  //responder FLop
+                     
+			default:
+                            RankingUtil.checkRanking(jogador, tableCards);
+                 i = RankingUtil.getRankingToInt(jogador);
+                 
+                    if(estaEmJogo) {
+                        
+                        
+                        if(i>0) {
+                           double call = quantia-dinheiroJogado; 
+                            if(dinheiro>=call) {
+                                    
+                                    dinheiro=dinheiro-call;
+                                    addBehaviour(new sendMessageCall(call));
+                                    
+                                    }
+                            else {
+                                  double dinheiroK=dinheiro;
+                                   dinheiro=dinheiro-dinheiroK;
+                                 addBehaviour(new sendMessageCall(dinheiroK));
+                            }
+                            
+                        }
+                        else addBehaviour(new sendMessageFold());
+                     }
+                    
+                    else {
+                       estaEmJogo=true;
+                       
+                       if(quantia>Ontologias.VALORAPOSTAR) {
+                       
+                           if(i>0) {
+                                    if(dinheiro>=quantia) {
+                                    
+                                        dinheiro=dinheiro-quantia;
+                                        dinheiroJogado=quantia;
+                                    addBehaviour(new sendMessageCall(quantia));
+                                        
+                                    
+                                    }
+                                    else {
+                                        dinheiroJogado=dinheiro;
+                                        dinheiro=0;
+                                        
+                                    addBehaviour(new sendMessageCall(dinheiroJogado));
+                                        
+                                    }
+                               
+                               
+                           }
+                           else addBehaviour(new sendMessageFold());
+                           
+                       }
+                       
+                       else {
+                           if(i>0) {
+                                    double dinheiroK =quantia+ Ontologias.VALORAPOSTAR*0.5;
+                                    if(dinheiro>=dinheiroK) {
+                                      dinheiroJogado=dinheiroK;
+                                      dinheiro=dinheiro -dinheiroK;
+                                        addBehaviour(new sendMessageRaise(dinheiroK));
+                                        
+                                    }
+                                   
+                                    else {
+                                        if(dinheiro>Ontologias.VALORAPOSTAR) {
+                                        dinheiroJogado=dinheiro;
+                                        dinheiro=0;
+                                        addBehaviour(new sendMessageRaise(dinheiroJogado));
+                                        }
+                                        else {
+                                         dinheiroJogado=dinheiro;
+                                        dinheiro=0;
+                                        addBehaviour(new sendMessageCall(dinheiroJogado));
+                                            
+                                        }
+                                   
+                                    }
+                           }
+                           
+                           else {
+                                    double dinheiroK=Ontologias.VALORAPOSTAR;
+                                    dinheiroJogado=dinheiroK;
+                                    dinheiro=dinheiro-dinheiroK;
+                                    addBehaviour(new sendMessageCall(dinheiroK));
+                                    
+                                    
+                           
+                           }
+                       
+                       }
+                       
+                       
+                        
+                    
+                    }
+                            
                      break;
-			case 2: //responder turn
-                     break;
-			case 3: //respnder river
-                     break;
-				}
-			}
+			
 
-
+                        }
 		}
+                        }
+                }
+                
+                              
 		/************************************************* Respostas *************************************************/			
 
 		private class sendMessageCall extends OneShotBehaviour{
@@ -275,8 +484,8 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
 
 
 		private class sendMessageRaise extends OneShotBehaviour{
-			int quantia;
-			 public sendMessageRaise(int q) {
+			double quantia;
+			 public sendMessageRaise(double q) {
 			quantia = q;
 			}
 				@Override 
@@ -329,7 +538,7 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
 				public void action(){
 					AID receiver = new AID();
 					receiver.setLocalName("Dealer");
-					ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+					ACLMessage msg = new ACLMessage(ACLMessage.CANCEL);
 					msg.setOntology(Ontologias.NAODINHEIRO);
 					
 					msg.addReceiver(receiver);
@@ -338,6 +547,52 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
 					
 				}
 			
-				}	
+				}
+ 
+                        private class sendPlayerFold extends OneShotBehaviour{
+			
+			
+				@Override 
+				public void action(){
+					AID receiver = new AID();
+					receiver.setLocalName("Dealer");
+					ACLMessage msg = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+					msg.setOntology(Ontologias.LISTAJOGADORES);
+					msg.setContent("NumeroJogadores");
+					msg.addReceiver(receiver);
+					myAgent.send(msg);
+					
+					
+				}
+			
+				}
+                        
+                        private class receveFold extends OneShotBehaviour{
+			
+                            
+			
+                                        @Override 
+                                    public void action(){
+                                    MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REJECT_PROPOSAL);
+                                    MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.LISTAJOGADORES);
+                                    MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
+                                    ACLMessage msg = receive(mtEntrada);
+                                    
+                                    if(msg !=null) {
+                                    
+                                        folded =Integer.parseInt(msg.getContent());
+                                        
+                                        
+                                    
+                                    }
+
+                        
+					
+				}
+			
+				}
+
+                        
+                        
 
 }

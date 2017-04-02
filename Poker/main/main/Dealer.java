@@ -23,12 +23,12 @@ public class Dealer  extends Agent{
 
     //baralho e jogadores 
     private Deck baralho;
-    private List<Player> playersInTable;
-    private List<Player> playersInHand;
+    private List<IPlayer> playersInTable;
+    private List<IPlayer> playersInHand;
     //rondas
     private List<Card> tableCards;
     private double pot,round,folded;
-    private int toCall;
+    private double toCall;
     private boolean raised,hand;
     private Map<String,Integer> dinheiroApostado;
 
@@ -41,6 +41,7 @@ protected void setup(){
     this.addBehaviour(new ReceiveRequestDesistiram());
      this.addBehaviour(new ReceiveRequestPot());
      this.addBehaviour(new ReceiveMessageOfShame());
+     this.addBehaviour(new receveFold());
 }
 
 
@@ -135,18 +136,21 @@ protected void setup(){
 		@Override
 		public void action() {
 			
-			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CANCEL);
 			MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.NAODINHEIRO);
 			MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
 			ACLMessage msg = receive(mtEntrada);
 			
 			if(msg != null){
 				
-				try {
+				try { 
+                                      /*
 					String[] parts = msg.getSender().toString().split("@");
 					String[] parts2 = parts[0].split("\"");
-					removeAgenteTable(parts2[1]);         
-					
+				   
+                                    removeAgenteTable(parts2[1]);         
+                                    */
+                                      removeAgenteTable(msg.getSender().getLocalName());
 					} catch (Exception e) {
 					System.out.println(e.getMessage());
 				}
@@ -240,14 +244,14 @@ private class NewHand extends OneShotBehaviour{
 		    baralho = new Deck();
 			tableCards = new ArrayList<>();
 			playersInHand = new ArrayList<>();
-			toCall = 50;
-        for(Player p : playersInTable){
+			toCall = Ontologias.VALORAPOSTAR;
+        for(IPlayer p : playersInTable){
             
 				playersInHand.add(p);
 				addBehaviour(new sendMessageNewHand(p.getNome(),playersInTable.size()));
 			}
         
-			for (Player player : playersInHand) {
+			for (IPlayer player : playersInHand) {
 				List<Card> mao = new ArrayList<Card>();
 				Card  c1 = baralho.pop();
 				Card c2 =  baralho.pop();
@@ -327,7 +331,8 @@ private class Winner extends OneShotBehaviour{
 
         @Override
 		public void action(){
-        	List<IPlayer> win = getWinner();
+        	List<IPlayer> win = new ArrayList<>();
+                win.addAll(getWinner());
                 int i;
                 
                 for(i=0;i<win.size();i++) {
@@ -339,12 +344,19 @@ private class Winner extends OneShotBehaviour{
 		msg.setContent((pot/win.size())+"");
 		msg.addReceiver(receiver);
 		myAgent.send(msg);
+		 }
+                List<IPlayer> loss = new ArrayList<>();
+                
+                loss.addAll(playersInTable);
+                boolean d = loss.removeAll(win);
+                if(d) {
+                for(i=0;i<loss.size();i++) {
+                 
+		                  addBehaviour(new sendMessageDerrota(loss.get(i).getNome()));
 		
-                
-                
-                
                 }
                 
+                }
                 
                 
         }
@@ -444,11 +456,11 @@ private class RespostasPlayer extends SimpleBehaviour{
 						if(msg.getOntology().equals(Ontologias.RAISE)){
 							received = true;
 					 		raised = true;
-					 		int x =(int) msg.getContentObject();
-					 		toCall+=x;
+					 		double x =(double) msg.getContentObject();
+					 		toCall=x;
 					 		pot+=x;
 							/************************************** */
-							System.out.println("Raise "+x+" " + msg.getSender());
+							System.out.println("Raise "+x+" " + msg.getSender().getLocalName());
 						/********************************************** */	
 					 		
 						}else if(msg.getOntology().equals(Ontologias.JOGA)){
@@ -456,18 +468,19 @@ private class RespostasPlayer extends SimpleBehaviour{
 						double y = (double)msg.getContentObject();
 						pot+=y;
 						/************************************** */
-						System.out.println("Joga "+y+" " + msg.getSender());
+						System.out.println("Joga "+y+" " + msg.getSender().getLocalName());
 					/********************************************** */	
 				 						
 						}else if(msg.getOntology().equals(Ontologias.FOLD)){
 							received = true;
 						folded++;
 						/************************************** */
-						System.out.println("Fold " + msg.getSender());
+						System.out.println("Fold " + msg.getSender().getLocalName());
 					/********************************************** */
 						String[] parts = msg.getSender().toString().split("@");
 						String[] parts2 = parts[0].split("\"");
-						removerAgenteHand(parts2[1]);
+                                                System.out.println("Vou remover o agente : " + msg.getSender().getLocalName());
+						removerAgenteHand(msg.getSender().getLocalName());
 						
 						}
 							} catch (Exception e) {
@@ -758,10 +771,10 @@ receiverN = playername;
 	}
 private class PerguntaAgenteJoga extends OneShotBehaviour {
        private String nomeA;
-       int dinheiroApostar;
+       double dinheiroApostar;
     
       
-        public PerguntaAgenteJoga(String nomeAgente,int dinheiroA) {
+        public PerguntaAgenteJoga(String nomeAgente,double dinheiroA) {
             nomeA=nomeAgente;
             dinheiroApostar=dinheiroA;
         }    
@@ -913,7 +926,7 @@ public void removerAgenteHand(String nomeAgente) {
     
     for(IPlayer a :this.playersInHand) {
     
-        if(a.getNome().equalsIgnoreCase(nomeAgente)) { 
+        if(a.getNome().equalsIgnoreCase(nomeAgente)) {
             this.playersInHand.remove(a);
             return;
         }
@@ -923,7 +936,8 @@ public void removerAgenteHand(String nomeAgente) {
 	//remover o player da mesa
                  for(IPlayer a :this.playersInTable) {
             
-                if(a.getNome().equalsIgnoreCase(player)) { 
+                if(a.getNome().equalsIgnoreCase(player)) {
+                   
                     this.playersInTable.remove(a);
                     return;
                 }
@@ -931,6 +945,58 @@ public void removerAgenteHand(String nomeAgente) {
                 
 	
 }
+  private class receveFold extends CyclicBehaviour{
+			
+                            
+			
+            @Override 
+        public void action(){
+        MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REJECT_PROPOSAL);
+        MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.LISTAJOGADORES);
+        MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
+        ACLMessage msg = receive(mtEntrada);
+
+        if(msg !=null) {
+          
+            addBehaviour(new SendPlayerFold(msg.getSender().getLocalName()) );
+
+
+
+        }
+        else block();
+
+                        
+					
+}
+			
+}
+  
+   private class SendPlayerFold extends OneShotBehaviour{
+	
+       private String agente;
+       private SendPlayerFold (String agente) {
+       this.agente=agente;
+       
+       }
+			
+				@Override 
+				public void action(){
+					AID receiver = new AID();
+					receiver.setLocalName(agente);
+					ACLMessage msg = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+					msg.setOntology(Ontologias.LISTAJOGADORES);
+					msg.setContent(String.valueOf(playersInHand.size()));
+					msg.addReceiver(receiver);
+					myAgent.send(msg);
+					
+					
+				}
+			
+				}
+
+  
+    
+    
 
 }
 

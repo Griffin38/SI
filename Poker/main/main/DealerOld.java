@@ -23,7 +23,7 @@ public class DealerOld  extends Agent{
 	private List<IPlayer> playersTable;
 	private List<IPlayer> playersHand;
 	private List<Card> tableCards;
-	private int valorApostar;
+	private double valorApostar;
         private Map<String,Double> dinheiroApostado;
 	private int pot,lastRaiseID;
 	private boolean raised;
@@ -182,10 +182,10 @@ public class AskTable extends SimpleBehaviour{
 
 public class PerguntaAgenteJoga extends OneShotBehaviour {
        String nomeA;
-       int dinheiroApostar;
+      double dinheiroApostar;
     
       
-        public PerguntaAgenteJoga(String nomeAgente,int dinheiroA) {
+        public PerguntaAgenteJoga(String nomeAgente,double dinheiroA) {
             nomeA=nomeAgente;
             dinheiroApostar=dinheiroA;
         }    
