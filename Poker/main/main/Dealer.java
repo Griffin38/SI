@@ -30,11 +30,13 @@ public class Dealer  extends Agent{
     private double pot,round,folded;
     private double toCall;
     private boolean raised,hand;
+    private int nHand;
     private Map<String,Integer> dinheiroApostado;
 
 protected void setup(){
     super.setup();
     hand=false;
+    nHand = 0;
     this.playersInTable=new ArrayList<>();
     this.addBehaviour(new ReceiveBehaviourJogadores());
     this.addBehaviour(new DealJob());
@@ -198,7 +200,10 @@ private class WorkWork extends SimpleBehaviour{
 		public void action(){
                    
         	if(!hand){
-                   
+        		nHand++;
+        	   	/************************************** */
+    			System.out.println("Mao nr  " +nHand);
+    		/********************************************** */       
         	hand = true;
         	round = 0;
         	pot = 0;

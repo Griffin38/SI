@@ -195,7 +195,7 @@ private class SendMessageEntrance extends OneShotBehaviour{
 						}else if (msg.getOntology().equals(Ontologias.DESISTIRAM)){
 							folded = (double)msg.getContentObject();
 						}else if(msg.getOntology().equals(Ontologias.LOSS)){
-							if(dinheiro == 0){ 
+							if(dinheiro <= 0){ 
 								addBehaviour(new sendMessageOfShame());
 								//matar agente?
 							}
@@ -278,6 +278,7 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
             case 0:  
                  RankingUtil.checkRanking(jogador, tableCards);
                   myRank = RankingUtil.getRankingToInt(jogador);
+                  
                   switch(myRank){
               	case 0: 
               			Card highCard = RankingUtil.getHighCard(jogador,
@@ -325,15 +326,19 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
                			}
                			break;			
                	case 2:  if(hasRaised == 0){addBehaviour(new sendMessageRaise(quantia/2)); hasRaised++; toRaise = 1;}
+               	else addBehaviour(new sendMessageCall(quantia));
                				
                			break;
                	case 3: 
                	 if(hasRaised == 0){addBehaviour(new sendMessageRaise(quantia/2)); hasRaised++; toRaise = 1;}
+               	else addBehaviour(new sendMessageCall(quantia));
                			break;
                	case 4:   if(hasRaised == 0){addBehaviour(new sendMessageRaise(quantia/2)); hasRaised++; toRaise = 2;}
+               	else addBehaviour(new sendMessageCall(quantia));
                			break;
                			
                	default:   if(hasRaised == 0){addBehaviour(new sendMessageRaise(quantia/2)); hasRaised++; toRaise = 3;}
+               	else addBehaviour(new sendMessageCall(quantia));
                			break;
               
 
@@ -497,6 +502,9 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
 			
 				@Override 
 				public void action(){
+				   	/************************************** */
+	    			System.out.println(" ->>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> EU vou para casa "+ getLocalName());
+	    		/********************************************** */    
 					AID receiver = new AID();
 					receiver.setLocalName("Dealer");
 					ACLMessage msg = new ACLMessage(ACLMessage.CANCEL);
