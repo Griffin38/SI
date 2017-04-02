@@ -272,14 +272,16 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
                  RankingUtil.checkRanking(jogador, tableCards);
                   myRank = RankingUtil.getRankingToInt(jogador);
                   switch(myRank){
-              	case 0: Card highCard = RankingUtil.getHighCard(jogador,
+              	case 0: 
+              			Card highCard = RankingUtil.getHighCard(jogador,
               			Collections.EMPTY_LIST);
               			int cRank = highCard.getRank().ordinal();
               			if(cRank >= 8) addBehaviour(new sendMessageCall(quantia));
               			else if(folded > (npTable -1))addBehaviour(new sendMessageFold());
               			else addBehaviour(new sendMessageCall(quantia));
               			break;
-              	case 1:   addBehaviour(new sendMessageCall(quantia));
+              	case 1: 
+              			addBehaviour(new sendMessageCall(quantia));
               			Card highCardPair = RankingUtil.getHighCard(jogador,
               			Collections.EMPTY_LIST);
               			int cRankPair = highCardPair.getRank().ordinal();
@@ -293,19 +295,44 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
                  RankingUtil.checkRanking(jogador, tableCards);
                  myRank = RankingUtil.getRankingToInt(jogador);
                  switch(myRank){
-               	case 0: 
+               	case 0:  
+               			Player test = new Player("test");
+               			RankingUtil.checkRanking(test, tableCards);
+               			int testRank = RankingUtil.getRankingToInt(jogador);
+               			if(testRank == 0) {
+               				Card high1= RankingUtil.getHighCard(test,
+                          		Collections.EMPTY_LIST);
+                          		int cRankF1 = high1.getRank().ordinal();Card 
+                          		high2= RankingUtil.getHighCard(test,
+                                  		Collections.EMPTY_LIST);
+                                  int cRankF2 = high2.getRank().ordinal();
+                          		if(cRankF2 > cRankF1) addBehaviour(new sendMessageCall(quantia));
+                          		else addBehaviour(new sendMessageFold());
+               			}if(testRank == 3 ){ addBehaviour(new sendMessageCall(quantia));}
+               			else addBehaviour(new sendMessageFold());
                			break;
-               	case 1:
+               	case 1: if(toRaise == 1) addBehaviour(new sendMessageRaise((quantia/2)));
+               		else{
+               			List<Card> highP = RankingUtil.getOnePair(jogador,
+                          		tableCards);
+               			int c = highP.get(0).getRankToInt();
+               			if(c >= 8) addBehaviour(new sendMessageRaise(quantia/2));
+               			else addBehaviour(new sendMessageCall(quantia));
+               				
+               			}
                			break;			
-               	case 2: 
+               	case 2:  addBehaviour(new sendMessageRaise(quantia/2));
+               				toRaise = 1;
                			break;
-               	case 3:
+               	case 3:  addBehaviour(new sendMessageRaise(quantia/2));
+   						toRaise = 1;
                			break;
-               	case 4: 
+               	case 4:  addBehaviour(new sendMessageRaise(quantia/2));
+   						toRaise = 2;
                			break;
-               	case 5: 
-               			break;
-               	default: 
+               			
+               	default:  addBehaviour(new sendMessageRaise(quantia/2));
+   							toRaise = 3; 
                			break;
               
 
@@ -315,19 +342,25 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
                 RankingUtil.checkRanking(jogador, tableCards);
                 myRank = RankingUtil.getRankingToInt(jogador);
                 switch(myRank){
-              	case 0: 
+              	case 0:  addBehaviour(new sendMessageFold());
               			break;
-              	case 1:
+              	case 1: addBehaviour(new sendMessageCall(quantia));
               			break;			
-              	case 2: 
+              	case 2: addBehaviour(new sendMessageCall(quantia));
               			break;
-              	case 3:
-              			break;
-              	case 4: 
-              			break;
-              	case 5: 
-              			break;
-              	default: 
+              	case 3: if(toRaise == 1){
+              		addBehaviour(new sendMessageRaise(quantia/2));
+              	}
+              	else addBehaviour(new sendMessageCall(quantia));
+
+              	default:  
+              		 if(toRaise == 3){
+              			addBehaviour(new sendMessageRaise(quantia));
+              		 }else if(toRaise == 2){
+              			addBehaviour(new sendMessageRaise(quantia - (quantia/3)));
+              		 }else if(toRaise == 1){
+              			addBehaviour(new sendMessageRaise(quantia/2));
+              		 }else addBehaviour(new sendMessageCall(quantia));
               			break;
              
 
@@ -337,19 +370,22 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
                 RankingUtil.checkRanking(jogador, tableCards);
                 myRank = RankingUtil.getRankingToInt(jogador);
                 switch(myRank){
-              	case 0: 
-              			break;
-              	case 1:
+
+              	case 1: Card highCardPair = RankingUtil.getHighCard(jogador,
+              			Collections.EMPTY_LIST);
+              			int cRankPair = highCardPair.getRank().ordinal();
+              			if(cRankPair >= 7) addBehaviour(new sendMessageRaise(quantia));
+              			else addBehaviour(new sendMessageCall(quantia));
               			break;			
-              	case 2: 
+              	case 2:  addBehaviour(new sendMessageRaise(quantia-(quantia/4)));
               			break;
-              	case 3:
+              	case 3: addBehaviour(new sendMessageRaise(quantia-(quantia/3)));
               			break;
-              	case 4: 
+              	case 4: addBehaviour(new sendMessageRaise(quantia));
               			break;
-              	case 5: 
+              	case 5: addBehaviour(new sendMessageRaise(quantia + (quantia/4)));
               			break;
-              	default: 
+              	default:  addBehaviour(new sendMessageRaise(2*quantia));
               			break;
              
 
