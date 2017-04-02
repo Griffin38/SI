@@ -23,8 +23,8 @@ public class Dealer  extends Agent{
 
     //baralho e jogadores 
     private Deck baralho;
-    private List<IPlayer> playersInTable;
-    private List<IPlayer> playersInHand;
+    private List<Player> playersInTable;
+    private List<Player> playersInHand;
     //rondas
     private List<Card> tableCards;
     private double pot,round,folded;
@@ -41,7 +41,7 @@ protected void setup(){
     this.addBehaviour(new ReceiveRequestDesistiram());
      this.addBehaviour(new ReceiveRequestPot());
      this.addBehaviour(new ReceiveMessageOfShame());
-     this.addBehaviour(new receveFold());
+     
 }
 
 
@@ -245,13 +245,13 @@ private class NewHand extends OneShotBehaviour{
 			tableCards = new ArrayList<>();
 			playersInHand = new ArrayList<>();
 			toCall = Ontologias.VALORAPOSTAR;
-        for(IPlayer p : playersInTable){
+        for(Player p : playersInTable){
             
 				playersInHand.add(p);
 				addBehaviour(new sendMessageNewHand(p.getNome(),playersInTable.size()));
 			}
         
-			for (IPlayer player : playersInHand) {
+			for (Player player : playersInHand) {
 				List<Card> mao = new ArrayList<Card>();
 				Card  c1 = baralho.pop();
 				Card c2 =  baralho.pop();
@@ -945,54 +945,6 @@ public void removerAgenteHand(String nomeAgente) {
                 
 	
 }
-  private class receveFold extends CyclicBehaviour{
-			
-                            
-			
-            @Override 
-        public void action(){
-        MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REJECT_PROPOSAL);
-        MessageTemplate mtE = MessageTemplate.MatchOntology(Ontologias.LISTAJOGADORES);
-        MessageTemplate mtEntrada = MessageTemplate.and(mt, mtE);
-        ACLMessage msg = receive(mtEntrada);
-
-        if(msg !=null) {
-          
-            addBehaviour(new SendPlayerFold(msg.getSender().getLocalName()) );
-
-
-
-        }
-        else block();
-
-                        
-					
-}
-			
-}
-  
-   private class SendPlayerFold extends OneShotBehaviour{
-	
-       private String agente;
-       private SendPlayerFold (String agente) {
-       this.agente=agente;
-       
-       }
-			
-				@Override 
-				public void action(){
-					AID receiver = new AID();
-					receiver.setLocalName(agente);
-					ACLMessage msg = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
-					msg.setOntology(Ontologias.LISTAJOGADORES);
-					msg.setContent(String.valueOf(playersInHand.size()));
-					msg.addReceiver(receiver);
-					myAgent.send(msg);
-					
-					
-				}
-			
-				}
 
   
     
