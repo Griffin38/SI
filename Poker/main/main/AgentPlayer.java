@@ -295,22 +295,16 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
                  RankingUtil.checkRanking(jogador, tableCards);
                  myRank = RankingUtil.getRankingToInt(jogador);
                  switch(myRank){
-               	case 0:  
-               			Player test = new Player("test");
-               			RankingUtil.checkRanking(test, tableCards);
-               			int testRank = RankingUtil.getRankingToInt(jogador);
-               			if(testRank == 0) {
-               				Card high1= RankingUtil.getHighCard(test,
-                          		Collections.EMPTY_LIST);
-                          		int cRankF1 = high1.getRank().ordinal();Card 
-                          		high2= RankingUtil.getHighCard(test,
-                                  		Collections.EMPTY_LIST);
-                                  int cRankF2 = high2.getRank().ordinal();
-                          		if(cRankF2 > cRankF1) addBehaviour(new sendMessageCall(quantia));
-                          		else addBehaviour(new sendMessageFold());
-               			}if(testRank == 3 ){ addBehaviour(new sendMessageCall(quantia));}
-               			else addBehaviour(new sendMessageFold());
-               			break;
+               	case 0: 
+               		Card highCard = RankingUtil.getHighCard(jogador,
+              			Collections.EMPTY_LIST);
+              			int cRank = highCard.getRank().ordinal();
+              			if(cRank >= 10) addBehaviour(new sendMessageCall(quantia));
+              			else if(folded > (npTable -1))addBehaviour(new sendMessageFold());
+              			else addBehaviour(new sendMessageCall(quantia));
+              			break;
+               		
+               		
                	case 1: if(toRaise == 1) addBehaviour(new sendMessageRaise((quantia/2)));
                		else{
                			List<Card> highP = RankingUtil.getOnePair(jogador,
