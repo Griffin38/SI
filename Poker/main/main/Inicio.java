@@ -153,17 +153,11 @@ public class Inicio extends javax.swing.JDialog {
         // TODO add your handling code here:
         
        try { 
-    	   AgentController ag = container.createNewAgent(Ontologias.NOMEAGENTE+this.nrJogadores, 
-                   "main.AgentPlayer", 
-                   new Object[] {});
-    	   		   ag.start();
-                   this.nrJogadores++;
-                   JOptionPane.showMessageDialog(null,"Jogador Criado.");
-                   this.jogadores.add((double)this.nrJogadores);
+    	  
 
 
 
-      /*  double dinheiro=Double.parseDouble(this.dinheiroUser.getText());
+     double dinheiro=Double.parseDouble(this.dinheiroUser.getText());
         
         if(dinheiro >0) {
              
@@ -185,7 +179,7 @@ public class Inicio extends javax.swing.JDialog {
             this.nrJogadores++;
            
             
-        }*/
+        }
         
        }
        catch(Exception e) {
