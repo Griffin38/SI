@@ -15,6 +15,7 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import java.io.Serializable;
 import java.util.Map.*;
+import java.util.concurrent.TimeUnit;
 
 
 
@@ -146,12 +147,9 @@ protected void setup(){
 			if(msg != null){
 				
 				try { 
-                                      /*
-					String[] parts = msg.getSender().toString().split("@");
-					String[] parts2 = parts[0].split("\"");
-				   
-                                    removeAgenteTable(parts2[1]);         
-                                    */
+                                      
+					      
+                                    
                                       removeAgenteTable(msg.getSender().getLocalName());
 					} catch (Exception e) {
 					System.out.println(e.getMessage());
@@ -191,15 +189,15 @@ protected void setup(){
 }
 
 
-private class WorkWork extends SimpleBehaviour{
+private class WorkWork extends OneShotBehaviour{
 
 
-	private boolean finished = false;
+
         
         @Override
 		public void action(){
                    
-        	if(!hand){
+        	if(!hand && playersInTable.size() > 1 ){
         		nHand++;
         	   	/************************************** */
     			System.out.println("Mao nr  " +nHand);
@@ -224,16 +222,15 @@ private class WorkWork extends SimpleBehaviour{
       	}
         }
 
-        @Override
-        public boolean done(){
-            if(playersInTable.size() == 1 && !hand) finished = true;
-            return finished;
-        }
+     
         @Override
 		public int onEnd(){
-        	/************************************** */
+        	if( playersInTable.size() == 1){
+        		/************************************** */
+        	
 			System.out.println("GRANDE VENCEDOR:: "+ playersInTable.get(0).getNome());
 			/********************************************** */
+        	}
 			return 1;
 		}
 }
@@ -373,8 +370,14 @@ private class Clean extends OneShotBehaviour{
 
         @Override
 		public void action(){
-    		
+        	try {
+				TimeUnit.SECONDS.sleep(2);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		   hand = false; 
+		   addBehaviour(new WorkWork());
 		   /************************************** */
 			System.out.println("CLEAN Hand:: "+ hand);
 			/********************************************** */

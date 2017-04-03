@@ -31,7 +31,7 @@ public class AgentPlayer extends Agent {
     protected void setup() {
     super.setup();
     
-    dinheiro=5000;
+    dinheiro=220;
     jogador = new Player(getLocalName());
     this.estaEmJogo=false;
     this.addBehaviour(new SendMessageEntrance() );
