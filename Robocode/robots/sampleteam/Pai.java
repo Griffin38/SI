@@ -77,8 +77,8 @@ public class Pai extends TeamRobot {
     public void onScannedRobot(ScannedRobotEvent e) {
 	 
         double aliadoBearing = this.getHeading() + e.getBearing();
-	double aliadoX = getX() + e.getDistance() * Math.sin(Math.toRadians(aliadoBearing));
-        double aliadoY = getY() + e.getDistance() * Math.cos(Math.toRadians(aliadoBearing));
+	int  aliadoX = (int)( getX() + e.getDistance() * Math.sin(Math.toRadians(aliadoBearing)));
+        int aliadoY = (int) (getY() + e.getDistance() * Math.cos(Math.toRadians(aliadoBearing)));
 
         if(isTeammate(e.getName()) ==false){
 		
@@ -89,11 +89,6 @@ public class Pai extends TeamRobot {
 				System.out.println(ex.getMessage());
 			}
                         
-                double enemyBearing = this.getHeading() + e.getBearing();
-
-                int enemyX = (int) (getX() + e.getDistance() * Math.sin(Math.toRadians(enemyBearing)));
-                int enemyY = (int) (getY() + e.getDistance() * Math.cos(Math.toRadians(enemyBearing)));
-
 
                 double absoluteBearing = getHeading() + e.getBearing();
 		double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
@@ -101,7 +96,7 @@ public class Pai extends TeamRobot {
 		if (Math.abs(bearingFromGun) <= 3) {
 			turnGunRight(bearingFromGun);
 
-			if (getGunHeat() == 0 && safeToShoot(enemyX,enemyY)) {
+			if (getGunHeat() == 0 && safeToShoot(aliadoX,aliadoY)) {
 				smartFire(Math.min(3 - Math.abs(bearingFromGun), getEnergy() - .1));
 				ahead(40);
 			}
