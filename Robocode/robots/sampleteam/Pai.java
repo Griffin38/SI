@@ -178,7 +178,7 @@ public void onHitRobot(HitRobotEvent event) {
 
 
             if(Math.sqrt(Math.pow(x-circulo.getCenterX(),2)+Math.pow(y-circulo.getCenterY(), 2)) <Math.pow(circulo.getRadius(),2)) {
-             System.out.println("Não é seguro disparar ;)");
+             System.out.println("Não é seguro disparar contra esse inimigo");
                 return false;  
             }
             

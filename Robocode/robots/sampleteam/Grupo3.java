@@ -182,7 +182,7 @@ public class Grupo3 extends TeamRobot
                                         
                                         
                                         if(Math.sqrt(Math.pow(x-circulo.getCenterX(),2)+Math.pow(y-circulo.getCenterY(), 2)) <Math.pow(circulo.getRadius(),2)) {
-                                         System.out.println("Não é seguro disparar ;)");
+                                         System.out.println("Não é seguro disparar para esse inimigo.");
                                             return false;  
                                         }
                                 }
@@ -194,7 +194,7 @@ public class Grupo3 extends TeamRobot
 					int x = Integer.parseInt(c[0]);
 					int y = Integer.parseInt(c[1]);
                                         if(Math.sqrt(Math.pow(x-circulo.getCenterX(),2)+Math.pow(y-circulo.getCenterY(), 2)) < Math.pow(circulo.getRadius(),2)){
-                                         System.out.println("Não é seguro disparar");
+                                         System.out.println("Não é seguro disparar.");
                                             return false;
                                         }
                                 }

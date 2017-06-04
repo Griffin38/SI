@@ -103,10 +103,7 @@ public class Filho extends TeamRobot implements Droid{
 		}
 	}
 
-	public void OnBulletMissed(BulletMissedEvent e) {
-		turnLeft(30);
-		ahead(90);
-	}
+
                               
    @Override
           public void onBulletHit(BulletHitEvent event) {
@@ -189,7 +186,7 @@ public class Filho extends TeamRobot implements Droid{
         if(this.nomeEnimigos.contains(e.getName()))
             this.nomeEnimigos.remove(e.getName());
         
-        System.out.println(this.nomeEnimigos.size());
+        //System.out.println(this.nomeEnimigos.size());
     
     }
     
