@@ -19,7 +19,7 @@ public class Grupo3 extends TeamRobot
 {      
        
 	private Map<String, String> posicaoAliados;
-        //private Map<String,String> posicaoEnimigos;
+        //private Map<String,String> posicaoInimigos;
         private final String SCOUT ="Scout";
        
        
@@ -30,7 +30,7 @@ public class Grupo3 extends TeamRobot
 		setColors(Color.BLACK,Color.BLUE,Color.GREEN); // body,gun,radar
 		setBulletColor(Color.YELLOW);
 		posicaoAliados = new HashMap<>();
-                //posicaoEnimigos=new HashMap<>();
+                //posicaoInimigos=new HashMap<>();
 		
 
 		// Robot main loop
@@ -76,7 +76,7 @@ public class Grupo3 extends TeamRobot
 			int enemyX = (int) (getX() + e.getDistance() * Math.sin(Math.toRadians(enemyBearing)));
 			int enemyY = (int) (getY() + e.getDistance() * Math.cos(Math.toRadians(enemyBearing)));
 
-                        //this.posicaoEnimigos.put(e.getName(),new String((int)enemyX+","+(int)enemyY));
+                        //this.posicaoInimigos.put(e.getName(),new String((int)enemyX+","+(int)enemyY));
                   
                 double absoluteBearing = getHeading() + e.getBearing();
 		double bearingFromGun = normalRelativeAngleDegrees(absoluteBearing - getGunHeading());
@@ -140,8 +140,8 @@ public class Grupo3 extends TeamRobot
         @Override
 	public void onRobotDeath(RobotDeathEvent e) {
 	 /*
-            if(posicaoEnimigos.containsKey(e.getName())){
-			posicaoEnimigos.remove(e.getName());
+            if(posicaoInimigos.containsKey(e.getName())){
+			posicaoInimigos.remove(e.getName());
                         return ;
 		}
             */

@@ -27,14 +27,14 @@ public class Filho extends TeamRobot implements Droid{
     
     public double lastX = 0.0;
     public double lastY = 0.0;
-    private List<String> nomeEnimigos;
+    private List<String> nomeInimigos;
     boolean movingForward;
     boolean go;
     
     @Override
     public void run() {
         
-        this.nomeEnimigos=new ArrayList<>();
+        this.nomeInimigos=new ArrayList<>();
     
     	lastX = getX();
     	lastY = getY();
@@ -44,10 +44,10 @@ public class Filho extends TeamRobot implements Droid{
         while(true) {
           go =false;
        
-            while(this.nomeEnimigos.size()>1) 
+            while(this.nomeInimigos.size()>1) 
                 goTo();
        
-            System.out.println(this.nomeEnimigos.size());
+            System.out.println(this.nomeInimigos.size());
             go=false;
            
             setColors(Color.GREEN,Color.GREEN,Color.GREEN);
@@ -144,7 +144,7 @@ public class Filho extends TeamRobot implements Droid{
                 setColors(Color.RED,Color.RED,Color.RED);
                 
 		while(getX() != 18 || getY() != 18 ){
-                    if(this.nomeEnimigos.size()<=1)
+                    if(this.nomeInimigos.size()<=1)
                         break;
                     else {  
                     go=true;
@@ -169,8 +169,8 @@ public class Filho extends TeamRobot implements Droid{
             if(isTeammate(e.getSender())){
 		
 			String r = (String) e.getMessage();
-                        if(this.nomeEnimigos.contains(r)==false)
-                            this.nomeEnimigos.add(r);
+                        if(this.nomeInimigos.contains(r)==false)
+                            this.nomeInimigos.add(r);
                         
                               
                }
@@ -183,10 +183,10 @@ public class Filho extends TeamRobot implements Droid{
     public void onRobotDeath(RobotDeathEvent e) {
     
         
-        if(this.nomeEnimigos.contains(e.getName()))
-            this.nomeEnimigos.remove(e.getName());
+        if(this.nomeInimigos.contains(e.getName()))
+            this.nomeInimigos.remove(e.getName());
         
-        //System.out.println(this.nomeEnimigos.size());
+        //System.out.println(this.nomeInimigos.size());
     
     }
     

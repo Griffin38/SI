@@ -24,11 +24,11 @@ import robocode.TurnCompleteCondition;
  *
  * @author gil
  */
-public class Soldado extends TeamRobot {
+public class Soldado extends TeamRobot implements Droid{
     
     public double lastX = 0.0;
     public double lastY = 0.0;
-    private List<String> nomeEnimigos;
+    private List<String> nomeInimigos;
     boolean movingForward;
     private double energia;
     boolean go;
@@ -40,7 +40,7 @@ public class Soldado extends TeamRobot {
     @Override
     public void run() {
     	 this.energia=getEnergy();
-        this.nomeEnimigos=new ArrayList<>();
+        this.nomeInimigos=new ArrayList<>();
         /****************************************************************************************/
         Random r = new Random();
         //couragem base 
@@ -74,10 +74,10 @@ public class Soldado extends TeamRobot {
         while(true) {
           go =false;
        /*
-            while(this.nomeEnimigos.size()>1) 
+            while(this.nomeInimigos.size()>1) 
                 goTo();
        */
-            //System.out.println(this.nomeEnimigos.size());
+            //System.out.println(this.nomeInimigos.size());
             //go=false;
            
             
@@ -193,10 +193,11 @@ public class Soldado extends TeamRobot {
     	
     	if(this.courage < 60 && this.courage > 35){
     		setBodyColor(Color.yellow) ;
-
+ System.out.println("Duvidas "+this.courage);
     	}else if(this.courage <=35){
     		setBodyColor(Color.red) ;
-    	}else {setBodyColor(Color.green) ;}
+            System.out.println("MEdo "+this.courage);
+    	}else {setBodyColor(Color.green) ;System.out.println("Bem "+this.courage);}
     }
     
     private void goTo(){
@@ -204,7 +205,7 @@ public class Soldado extends TeamRobot {
     	this.colorCheck();
                 
 		while(getX() != 18 || getY() != 18 ){
-                    if(this.nomeEnimigos.size()<=1)
+                    if(this.nomeInimigos.size()<=1)
                         break;
                     else {  
                     go=true;
@@ -226,6 +227,7 @@ public class Soldado extends TeamRobot {
     
      @Override
 	public void onMessageReceived(MessageEvent e) {
+        colorCheck();
             if(isTeammate(e.getSender())){
 		
 			String r = (String) e.getMessage();
@@ -252,12 +254,12 @@ public class Soldado extends TeamRobot {
 			else this.escape();
 				
 				break;
-			case "NE": this.nomeEnimigos.add(parts[1]);
+			case "NE": this.nomeInimigos.add(parts[1]);
 				break;
 			case "Aliado Morto":
 					this.courage = this.courage - this.personality;
 					break;
-			case "Enemigo Morto":
+			case "Inimigo Morto":
 				this.courage = this.courage + this.personality + 10;
 					break;
 			}
@@ -321,10 +323,10 @@ private void atackBot(String string, String string2) {
     public void onRobotDeath(RobotDeathEvent e) {
     
         
-        if(this.nomeEnimigos.contains(e.getName()))
-            this.nomeEnimigos.remove(e.getName());
+        if(this.nomeInimigos.contains(e.getName()))
+            this.nomeInimigos.remove(e.getName());
         
-        System.out.println(this.nomeEnimigos.size());
+        System.out.println(this.nomeInimigos.size());
     
     }
     
