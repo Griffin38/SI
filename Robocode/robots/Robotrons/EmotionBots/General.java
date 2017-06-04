@@ -1,3 +1,4 @@
+package sampleteam;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -8,6 +9,8 @@
 import java.awt.Color;
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.scene.shape.Circle;
 import robocode.BulletHitEvent;
 import robocode.BulletMissedEvent;
@@ -73,7 +76,7 @@ public class General extends TeamRobot {
     	//se tiver pouca pedir ajuda
     	if(this.getEnergy() < 100){
   	  try {
-			broadcastMessage("Ajuda:"+getX()+":"+getY());
+			broadcastMessage(new String("Ajuda"+":"+getX()+","+getY()));
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}}
@@ -89,11 +92,13 @@ public class General extends TeamRobot {
 	int  aliadoX = (int)( getX() + e.getDistance() * Math.sin(Math.toRadians(aliadoBearing)));
         int aliadoY = (int) (getY() + e.getDistance() * Math.cos(Math.toRadians(aliadoBearing)));
 
+       
+        
         if(isTeammate(e.getName()) ==false){
-		
+            
                     try {
                                
-                        broadcastMessage("NE:"+e.getName());
+                        broadcastMessage(new String("NE"+":"+e.getName()));
                         } catch (IOException ex) {
 				System.out.println(ex.getMessage());
 			}
@@ -107,7 +112,7 @@ public class General extends TeamRobot {
 
 			if (getGunHeat() == 0 && safeToShoot(aliadoX,aliadoY)) {
 				try {
-					broadcastMessage("Atacar:"+aliadoX+":"+aliadoY);
+					broadcastMessage(new String("Atacar"+":"+aliadoX+","+aliadoY));
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
@@ -218,13 +223,13 @@ public void onHitRobot(HitRobotEvent event) {
         if(isTeammate(e.getName())){
             this.posicao.clear();
       	  try {
-				broadcastMessage("Aliado Morto");
+				broadcastMessage(new String("Aliado Morto" +":"));
 			} catch (IOException ex) {
 				ex.printStackTrace();
 			}
         }else {
         	 try {
- 				broadcastMessage("Enemigo Morto");
+ 				broadcastMessage(new String("Enemigo Morto"+":"));
  			} catch (IOException ex) {
  				ex.printStackTrace();
  			}

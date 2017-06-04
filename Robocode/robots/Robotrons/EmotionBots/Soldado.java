@@ -1,3 +1,4 @@
+package sampleteam;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -29,13 +30,16 @@ public class Soldado extends TeamRobot {
     public double lastY = 0.0;
     private List<String> nomeEnimigos;
     boolean movingForward;
+    private double energia;
     boolean go;
     int courage;
     int personality;
     private int minperso;
+    public double distanceRobot = 0.0;
+	public double angulo;
     @Override
     public void run() {
-    	
+    	 this.energia=getEnergy();
         this.nomeEnimigos=new ArrayList<>();
         /****************************************************************************************/
         Random r = new Random();
@@ -69,12 +73,12 @@ public class Soldado extends TeamRobot {
 	
         while(true) {
           go =false;
-       
+       /*
             while(this.nomeEnimigos.size()>1) 
                 goTo();
-       
-            System.out.println(this.nomeEnimigos.size());
-            go=false;
+       */
+            //System.out.println(this.nomeEnimigos.size());
+            //go=false;
            
             
             setAhead(40000);
@@ -98,7 +102,15 @@ public class Soldado extends TeamRobot {
        
     }
     
-    
+    public void smartFire(double robotDistance) {
+		if (robotDistance > 200 || getEnergy() < 15) {
+			fire(2);
+		} else if (robotDistance > 50) {
+			fire(2);
+		} else {
+			fire(3);
+		}
+	}
     
     
     @Override
@@ -181,10 +193,11 @@ public class Soldado extends TeamRobot {
     	
     	if(this.courage < 60 && this.courage > 35){
     		setBodyColor(Color.yellow) ;
-
+ System.out.println("Duvidas "+this.courage);
     	}else if(this.courage <=35){
     		setBodyColor(Color.red) ;
-    	}else {setBodyColor(Color.green) ;}
+            System.out.println("MEdo "+this.courage);
+    	}else {setBodyColor(Color.green) ;System.out.println("Bem "+this.courage);}
     }
     
     private void goTo(){
@@ -214,20 +227,34 @@ public class Soldado extends TeamRobot {
     
      @Override
 	public void onMessageReceived(MessageEvent e) {
+        colorCheck();
             if(isTeammate(e.getSender())){
 		
 			String r = (String) e.getMessage();
+                        
 			String[] parts = r.split(":");
+                       
 			switch(parts[0]){
 			case "Atacar":  
-				if(this.courage > 35) this.atackBot(parts[1],parts[2]);
+                            String[] parts2 = parts[1].split(",");
+                                    
+                                    this.atackBot(parts2[0],parts2[1]);
+                            
+				if(this.courage > 35) {
+                                  String[] parts1 = parts[1].split(",");
+                                    
+                                    this.atackBot(parts1[0],parts1[1]);
+                                }
 				else this.escape();
 				break;
-			case "Ajuda": if(this.courage > 35) this.helpGeneral(parts[1],parts[2]);
+			case "Ajuda": if(this.courage > 35) {
+                            String[] parts1 = parts[1].split(",");
+                            this.helpGeneral(parts1[0],parts1[1]);
+                        }
 			else this.escape();
 				
 				break;
-			case "NE": this.nomeEnimigos.add(parts[2]);
+			case "NE": this.nomeEnimigos.add(parts[1]);
 				break;
 			case "Aliado Morto":
 					this.courage = this.courage - this.personality;
@@ -249,7 +276,7 @@ public class Soldado extends TeamRobot {
     
         private void escape() {
 	
-		//fugir
+		   goTo();
 	}
 
 
@@ -258,17 +285,36 @@ public class Soldado extends TeamRobot {
 		private void helpGeneral(String string, String string2) {
 		int x = Integer.parseInt(string);
 		int y = Integer.parseInt(string2);
+                
+                double distancia=Math.sqrt(Math.pow(x-(int)getX(),2) + Math.pow(y-(int)getY(),2));
+
+                distanceRobot = Math.sqrt(Math.pow(60,2) + Math.pow(distancia,2));
+                angulo = Math.toDegrees(Math.atan(60/distancia));
+
+                turnLeft(angulo);
+               ahead(distanceRobot + 30);
+                
+                
+
 		
 	}
 
 
 
 
-		private void atackBot(String string, String string2) {
-			int x = Integer.parseInt(string);
-			int y = Integer.parseInt(string2);
-		
-	}
+private void atackBot(String string, String string2) {
+        int x = Integer.parseInt(string);
+        int y = Integer.parseInt(string2);
+        double distancia=Math.sqrt(Math.pow(x-(int)getX(),2) + Math.pow(y-(int)getY(),2));
+
+        distanceRobot = Math.sqrt(Math.pow(60,2) + Math.pow(distancia,2));
+        angulo = Math.toDegrees(Math.atan(60/distancia));
+
+        turnLeft(angulo);
+        //ahead(distanceRobot + 30);
+        smartFire(distanceRobot);
+        
+}
 
 
 
