@@ -24,7 +24,7 @@ import robocode.TurnCompleteCondition;
  *
  * @author gil
  */
-public class Soldado extends TeamRobot {
+public class Soldado extends TeamRobot implements Droid{
     
     public double lastX = 0.0;
     public double lastY = 0.0;
