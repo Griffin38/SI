@@ -220,8 +220,12 @@ public class Soldado extends TeamRobot {
 			String[] parts = r.split(":");
 			switch(parts[0]){
 			case "Atacar":  
+				if(this.courage > 35) this.atackBot(parts[1],parts[2]);
+				else this.escape();
 				break;
-			case "Ajuda":
+			case "Ajuda": if(this.courage > 35) this.helpGeneral(parts[1],parts[2]);
+			else this.escape();
+				
 				break;
 			case "NE": this.nomeEnimigos.add(parts[2]);
 				break;
@@ -243,7 +247,33 @@ public class Soldado extends TeamRobot {
     
     
     
-        @Override
+        private void escape() {
+	
+		//fugir
+	}
+
+
+
+
+		private void helpGeneral(String string, String string2) {
+		int x = Integer.parseInt(string);
+		int y = Integer.parseInt(string2);
+		
+	}
+
+
+
+
+		private void atackBot(String string, String string2) {
+			int x = Integer.parseInt(string);
+			int y = Integer.parseInt(string2);
+		
+	}
+
+
+
+
+		@Override
     public void onRobotDeath(RobotDeathEvent e) {
     
         
