@@ -44,7 +44,7 @@ public class Soldado extends TeamRobot implements Droid{
         /****************************************************************************************/
         Random r = new Random();
         //couragem base 
-        this.courage =  r.nextInt(100) + 40;
+        this.courage =  r.nextInt(100) + 60;
         
         //personalidades
         this.personality = r.nextInt(3) + 1;
@@ -310,7 +310,7 @@ private void atackBot(String string, String string2) {
         distanceRobot = Math.sqrt(Math.pow(60,2) + Math.pow(distancia,2));
         angulo = Math.toDegrees(Math.atan(60/distancia));
 
-        turnLeft(angulo);
+        turnGunLeft(angulo);
         //ahead(distanceRobot + 30);
         smartFire(distanceRobot);
         
