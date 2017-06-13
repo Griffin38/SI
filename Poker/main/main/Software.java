@@ -35,13 +35,13 @@ public class Software extends GuiAgent{
     
    @Override
     protected void onGuiEvent(GuiEvent ge) {
-       /*
+       
          List<Double> dinheiroUser = (List<Double>) ge.getSource();
        int i;
          for(i=0;i<dinheiroUser.size();i++) {
          AID receiver = new AID();
  		receiver.setLocalName(Ontologias.NOMEAGENTE+i);
- 		ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+ 		ACLMessage msg = new ACLMessage(ACLMessage.DISCONFIRM);
  		msg.setOntology(Ontologias.RECEVEDINHEIRO);
  		msg.addReceiver(receiver);
                  
@@ -52,7 +52,7 @@ public class Software extends GuiAgent{
  		send(msg);
          
          }
-        */
+        
         
         
         

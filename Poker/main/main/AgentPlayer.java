@@ -31,11 +31,12 @@ public class AgentPlayer extends Agent {
     protected void setup() {
     super.setup();
     
-    dinheiro=220;
+    //dinheiro=220;
     jogador = new Player(getLocalName());
     this.estaEmJogo=false;
     this.addBehaviour(new SendMessageEntrance() );
     this.addBehaviour(new  ReceiveBehaviourJogador());
+    this.addBehaviour(new ReceiveBehaviour());
     
 
     }
@@ -555,4 +556,33 @@ System.out.println("Ganhei:: "+quantia+" "+getLocalName());
 				}	       
                         
 
+ private class ReceiveBehaviour extends CyclicBehaviour {
+   		
+  	
+  	@Override
+ 		public void action(){
+  			
+  			MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.DISCONFIRM);
+ 		MessageTemplate mtJ = MessageTemplate.MatchOntology(Ontologias.RECEVEDINHEIRO);
+  			MessageTemplate mtRespJogo = MessageTemplate.and(mt, mtJ);
+  			ACLMessage msg = receive(mtRespJogo);
+  			
+  			if(msg != null){
+  				
+  				try {
+ 					dinheiro = Double.parseDouble( msg.getContent());
+  					
+                                          System.out.println ("Dinherio para jogar : "+ dinheiro);
+                                                  
+  
+ 				} catch (Exception e) {
+  				System.out.println(e.getMessage());
+  				}
+ 				
+  			}else
+  		block();
+ 				
+  			}
+ 		} 
+                
 }
